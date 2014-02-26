@@ -1,6 +1,6 @@
 {
   "name": "job-broker",
-  "main" : "./src/broker.js",
+  "main": "./src/broker.js",
   "version": "0.0.8-pre",
   "description": "A broker to add jobs to queues and specify workers to process them",
   "scripts": {
@@ -10,9 +10,9 @@
     "queue",
     "broker"
   ],
-  "repository" :
-  { "type" : "git"
-  , "url" : "https://github.com/Sently/job-broker.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sently/job-broker.git"
   },
   "author": "Sent.ly Pte. Ltd.",
   "license": "MIT",
@@ -26,6 +26,7 @@
     "nconf": "~0.6.9",
     "rsmq": "~0.3.5",
     "aws-sdk": "~2.0.0-rc5",
-    "node-uuid": "~1.4.1"
+    "node-uuid": "~1.4.1",
+    "limiter": "~1.0.5"
   }
 }

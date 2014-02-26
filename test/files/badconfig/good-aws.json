@@ -9,7 +9,7 @@
 				"queue-module":"sqsqueue",
 				"queue-name":"buildtest",
 				"queue-settings": {
-					"polling-interval":20,
+					"polling-interval":20000,
 					"invisibility-timeout":3600,
 					"aws-config-file":"/Users/varun/Development/github/job-broker/job-broker-files/test/files/badconfig/aws.json",
 					"max-dequeue-count":3,

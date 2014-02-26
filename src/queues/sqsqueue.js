@@ -593,15 +593,24 @@ exports.queue = function() {
 		function poller() {
 			if(queue.isStarted) {
 				//Initialize receiveOptions for the first time
-				if(!receiveOptions) {
+				var maxReceivable = queue.getConsumable();
+				if(maxReceivable) {
+					if(maxReceivable > batchSize) {
+						maxReceivable = batchSize;
+					}
 					receiveOptions = {
 						QueueUrl: queueUrl,
-						WaitTimeSeconds:queue.pollingInterval,
-						MaxNumberOfMessages: batchSize,
+						WaitTimeSeconds:queue.pollingInterval / 1000,
+						MaxNumberOfMessages: maxReceivable,
 						AttributeNames:["ApproximateReceiveCount"]
 					};
+					sqs.receiveMessage(receiveOptions, messageReceived);
 				}
-				sqs.receiveMessage(receiveOptions, messageReceived);
+				else {
+					if(queue.isStarted) {
+						setTimeout(poller, queue.pollingInterval);
+					}
+				}
 			}
 		}
 
@@ -650,6 +659,8 @@ exports.queue = function() {
 			else {
 				//All is well
 				if (data.Messages && data.Messages.length > 0) {
+					//Mark them as consumed
+					queue.markConsumed(data.Messages.length);
 					messageBatch = data.Messages;
 					processReceivedOne();
 				}

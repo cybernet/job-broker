@@ -181,6 +181,46 @@ describe("Testing of the broker configuration module", function () {
 	});
 	waitsFor(resultCheck);
   });
+  
+  it("checks for a the case when throttle-unit is not defined", function () {
+	callResult = undefined;
+	broker.load(getTestFilePath("nothrottleunit.json"), function(result, brokerObj) {
+		//Workers node not defined
+		expect(result.errorCode).toBe(result.errorCodes.CONFIG_UNDEFINED_THROTTLE_UNIT.errorCode);
+		callResult = result;
+	});
+	waitsFor(resultCheck);
+  });
+  
+  it("checks for a the case when throttle-unit is invalid", function () {
+	callResult = undefined;
+	broker.load(getTestFilePath("invalidthrottleunit.json"), function(result, brokerObj) {
+		//Workers node not defined
+		expect(result.errorCode).toBe(result.errorCodes.CONFIG_INVALID_THROTTLE_UNIT.errorCode);
+		callResult = result;
+	});
+	waitsFor(resultCheck);
+  });
+  
+  it("checks for a the case when throttle-value is not defined", function () {
+	callResult = undefined;
+	broker.load(getTestFilePath("nothrottlevalue.json"), function(result, brokerObj) {
+		//Workers node not defined
+		expect(result.errorCode).toBe(result.errorCodes.CONFIG_UNDEFINED_THROTTLE_VALUE.errorCode);
+		callResult = result;
+	});
+	waitsFor(resultCheck);
+  });
+  
+  it("checks for a the case when throttle-value is invalid", function () {
+	callResult = undefined;
+	broker.load(getTestFilePath("invalidthrottlevalue.json"), function(result, brokerObj) {
+		//Workers node not defined
+		expect(result.errorCode).toBe(result.errorCodes.CONFIG_INVALID_THROTTLE_VALUE.errorCode);
+		callResult = result;
+	});
+	waitsFor(resultCheck);
+  });
 
   it("checks for a valid configuration", function () {
 	callResult = undefined;

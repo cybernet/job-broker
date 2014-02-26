@@ -348,8 +348,17 @@ exports.queue = function() {
 	
 	//This function polls the queue at the specified interval
 	function poller() {
-		//Poll
-		rsmq.receiveMessage(receiveOptions, messageReceived);
+		if(queue.isStarted) {
+			if(queue.getConsumable()) {
+				rsmq.receiveMessage(receiveOptions, messageReceived);
+			}
+			else {
+				//Otherwise revert to polling interval
+				if(queue.isStarted) {
+					timerHandle = setTimeout(poller, queue.pollingInterval);
+				}
+			}
+		}
 	}
 	
 	//Callback when the receiveMessage call completes
@@ -387,6 +396,9 @@ exports.queue = function() {
 				//Just in case for GC
 				ourMsgsType = null;
 				msg = null;
+				
+				//Mark one message as consumed
+				queue.markConsumed(1);
 				
 				//If we received a message, let's try again (soon)
 				if(queue.isStarted) {

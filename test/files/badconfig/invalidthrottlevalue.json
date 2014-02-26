@@ -1,0 +1,26 @@
+{
+	"workers": [
+		{
+			"job-type":"sendmsg",
+			"worker": {
+				"worker-module":"noworker"
+			},
+			"queue" : {
+				"queue-module":"redisqueue",
+				"queue-name":"testpushmany",
+				"queue-throttle": {
+					"throttle-unit":"minute",
+					"throttle-value":"jazz"
+				},
+				"queue-settings": {
+					"host":"127.0.0.1",
+					"port":"6379",
+					"ns":"rsmq",
+					"polling-interval":3000,
+					"invisibility-timeout":3600,
+					"max-dequeue-count":3
+				}
+			}
+		}
+	]
+}

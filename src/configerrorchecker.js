@@ -209,6 +209,44 @@ exports.checker = function(cb, cp) {
 		return false;
 	};
 	
+	//Check the settings for queue-throttle
+	checker.checkQueueThrottle = function(queueObj, i) {
+		//Since this is an optional setting, if it does not exist
+		//there is no error
+		if(!queueObj["queue-throttle"]) {
+			return false;
+		}
+		else {
+			//If it is defined, so must throttle-unit and throttle-value
+			if(!queueObj["queue-throttle"]["throttle-unit"]) {
+				resultObj = errorCodes.getError("CONFIG_UNDEFINED_THROTTLE_UNIT");
+				makeCallback();
+				return true;
+			}
+			//throttle-unit can only be second, minute, hour or day
+			var unit = queueObj["queue-throttle"]["throttle-unit"].trim().toLowerCase();
+			if(unit !== 'second' && unit !== 'minute' && unit !== 'hour' && unit !== 'day') {
+				resultObj = errorCodes.getError("CONFIG_INVALID_THROTTLE_UNIT");
+				resultObj.errorMessage = util.format(resultObj.errorMessage, unit);
+				makeCallback();
+				return true;
+			}
+			if(!queueObj["queue-throttle"]["throttle-value"] && queueObj["queue-throttle"]["throttle-value"] !== 0) {
+				resultObj = errorCodes.getError("CONFIG_UNDEFINED_THROTTLE_VALUE");
+				makeCallback();
+				return true;
+			}
+			//throttle-value must be a positive integer > 0
+			var throttleVal = parseInt(queueObj["queue-throttle"]["throttle-value"]);
+			if(isNaN(throttleVal) || throttleVal < 1) {
+				resultObj = errorCodes.getError("CONFIG_INVALID_THROTTLE_VALUE");
+				resultObj.errorMessage = util.format(resultObj.errorMessage, queueObj["queue-throttle"]["throttle-value"]);
+				makeCallback();
+				return true;
+			}
+		}
+	};
+	
 	//Check that the queue module can be loaded
 	checker.checkLoadQueueModule = function(queueObj, i, chk) {
 		var queueModuleName = queueObj["queue-module"];
@@ -242,6 +280,9 @@ exports.checker = function(cb, cp) {
 			chk.queueModule.configIndex = (i+1);
 			chk.queueModule.queueName = queueObj["queue-name"];
 			chk.queueModule.moduleName = queueModuleName;
+			if(queueObj["queue-name"]["queue-throttle"]) {
+				chk.queueModule.setThrottle(queueObj["queue-name"]["queue-throttle"]);
+			}
 			//Try to initialize
 			chk.queueModule.init();
 		}

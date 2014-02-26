@@ -20,7 +20,6 @@ function getTestFilePath(filename) {
 }
 
 function createTempConfigFile(filename){
-    
     var tempConfigFile = "temp.json";
     nconf.file({file: filename});
     var workerObjs = nconf.get("workers");
@@ -29,7 +28,6 @@ function createTempConfigFile(filename){
     qConfig["queue-name"] = "q" + Date.now();
     var data = "{ \"workers\": " + JSON.stringify(workerObjs) + " }";
     fs.writeFileSync(getTestFilePath(tempConfigFile), data);
-  
 }
 
 function deleteTempConfigFile() {
@@ -48,9 +46,6 @@ function rerror(){
 }
 
 function brokerinterfacetests(qname, configfile){
-	
-	
-	
 	describe("Testing Broker Interface with " + qname, function(){
 		it("verifies pushing 1 message into the queue", function(){
 			numQueueAlerts = 0;
@@ -215,6 +210,60 @@ function brokerinterfacetests(qname, configfile){
 				expect(numProcessed).toBe(0);
 				expect(numProcessedError).toBe(1);
 			});
+		});
+		
+		it("checks for error when pushing messages with invalid jobType", function(){
+			createTempConfigFile(getTestFilePath(configfile));
+			flag = false;
+			var q;
+			broker.load(getTestFilePath("temp.json"), function(result, brokerObj){
+				//File is loaded, we can remove it
+				deleteTempConfigFile();
+				
+				expect(result.errorCode).toBe(0);
+				
+				var message = {};
+				message.jobType = "thedeepvoid";
+				message.payload = {};
+				message.payload.id = 1;
+				message.payload.text = "dangling message";
+
+				
+				function queueErrorFunction(err, msg){
+					expect(err.errorCode).toBe(err.errorCodes.QUEUE_INVALID_JOB_TYPE.errorCode);
+					q.deleteQueue();
+				}
+				
+				function queueDeletedQueueFunction(worker, queue) {
+					unregister();
+				}
+				
+				function queueReadyFunction(info) {
+					q = info.queue;
+				}
+				
+				function brokerInitializedFunction() {
+					brokerObj.push(message);
+				}
+				
+
+				brokerObj.on("queue-error", queueErrorFunction);
+				brokerObj.on("queue-deleted-queue", queueDeletedQueueFunction);
+				brokerObj.on("queue-ready", queueReadyFunction);
+				brokerObj.on("broker-initialized", brokerInitializedFunction);
+		
+				brokerObj.connect();
+				
+				function unregister() {
+					brokerObj.removeListener("queue-error", queueErrorFunction);
+					brokerObj.removeListener("queue-deleted-queue", queueDeletedQueueFunction);
+					brokerObj.removeListener("queue-ready", queueReadyFunction);
+					brokerObj.removeListener("broker-initialized", brokerInitializedFunction);
+					brokerObj = null;
+					flag = true;
+				}
+			});
+			waitsFor(rerror, 20000);
 		});
 		
 		it("verifies scheduling 1 message into the queue with a delay of 1 minute ", function(){

@@ -11,8 +11,6 @@ v0.0.8-pre
 
 **Note:** If the version shown above ends with -pre, then its a pre-release version, otherwise its a release version.
 
-**IT IS NOT RECOMMENDED THAT YOU USE THIS MODULE IN PRODUCTION UNTIL IT REACHES AT LEAST VERISON > v0.1.5 AS IT IS STILL EVOLVING**
-
 Opening Project in Eclipse
 --------------------------
 To open this project in Eclipse, you'll need [Nodeclipse and Enide](http://www.nodeclipse.org/).
@@ -96,7 +94,7 @@ You need to create a configuration file. The following snippet shows a sample
 				"queue-module":"sqsqueue",
 				"queue-name":"yoursqsqueue",
 				"queue-settings": {
-					"polling-interval":20,
+					"polling-interval":20000,
 					"invisibility-timeout":3600,
 					"aws-config-file":"aws.json",
 					"max-dequeue-count":3,
@@ -382,7 +380,7 @@ It is a common use case for a Nodejs webapp or REST API to be producing messages
 				"queue-module":"sqsqueue",
 				"queue-name":"yoursqsqueue",
 				"queue-settings": {
-					"polling-interval":20,
+					"polling-interval":20000,
 					"invisibility-timeout":3600,
 					"aws-config-file":"aws.json",
 					"max-dequeue-count":3,

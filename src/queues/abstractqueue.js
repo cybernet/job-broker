@@ -4,6 +4,8 @@ var util = require('util');
 var path = require('path');
 //Event emitter stuff
 var EventEmitter = require('events').EventEmitter;
+//For throttling
+var RateLimiter = require('limiter').RateLimiter;
 
 //The class
 function AbstractQueue(name) {
@@ -29,6 +31,34 @@ function AbstractQueue(name) {
 	//it will be deleted straight away without any processing
 	//Default value is 5
 	this.maxDequeueCount = 5;
+	
+	
+	//This is the object for throttling rate of messages
+	var limiter;
+	this.setThrottle = function(throttle) {
+		limiter = new RateLimiter(parseInt(throttle["throttle-value"]), throttle["throttle-unit"], true);
+	};
+	
+	//Marks that the specified number of messages have been consumed from the queue
+	this.markConsumed = function(numConsumed) {
+		if(limiter) {
+			limiter.removeTokens(numConsumed, function(err, remaining) {
+				if(err) {
+					console.log(err);
+				}
+			});
+		}
+	};
+	
+	//Returns the number of messages we can consume within the throttle bracket
+	this.getConsumable = function() {
+		if(limiter) {
+			return limiter.getTokensRemaining();
+		}
+		else {
+			return Number.MAX_VALUE;
+		}
+	};
 	
 	var queue = this;
 	

@@ -131,6 +131,11 @@ var JobBroker = function(debug) {
 					if(checker.checkQueueName(queueObj, i)) {
 						return;
 					}
+					
+					//If throttling is defined, check its config
+					if(checker.checkQueueThrottle(queueObj, i)) {
+						return;
+					}
 				
 					//Store the queue name
 					var queueName = queueObj["queue-name"];
