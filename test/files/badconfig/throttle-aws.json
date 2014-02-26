@@ -1,0 +1,25 @@
+{
+	"workers": [
+		{
+			"job-type":"sendmsg",
+			"worker": {
+				"worker-module":"noworker"
+			},
+			"queue" : {
+				"queue-module":"sqsqueue",
+				"queue-name":"testpushmany",
+				"queue-throttle": {
+					"throttle-unit":"minute",
+					"throttle-value":"11"
+				},
+				"queue-settings": {
+					"polling-interval":3000,
+					"invisibility-timeout":3600,
+					"aws-config-file":"/Users/varun/Development/github/job-broker/job-broker-files/test/files/badconfig/aws.json",
+					"max-dequeue-count":3,
+					"delete-frequency-seconds":5
+				}
+			}
+		}
+	]
+}

@@ -356,11 +356,11 @@ function brokerinterfacetests(qname, configfile){
 		});
 		
 	});
-	
 }
 
 brokerinterfacetests("SQS", "good-aws.json");
 brokerinterfacetests("Redis Q", "good.json");
+
 
 
 

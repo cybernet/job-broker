@@ -244,6 +244,7 @@ exports.checker = function(cb, cp) {
 				makeCallback();
 				return true;
 			}
+			return false;
 		}
 	};
 	
@@ -280,8 +281,8 @@ exports.checker = function(cb, cp) {
 			chk.queueModule.configIndex = (i+1);
 			chk.queueModule.queueName = queueObj["queue-name"];
 			chk.queueModule.moduleName = queueModuleName;
-			if(queueObj["queue-name"]["queue-throttle"]) {
-				chk.queueModule.setThrottle(queueObj["queue-name"]["queue-throttle"]);
+			if(queueObj["queue-throttle"]) {
+				chk.queueModule.setThrottle(queueObj["queue-throttle"]);
 			}
 			//Try to initialize
 			chk.queueModule.init();

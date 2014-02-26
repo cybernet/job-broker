@@ -4,8 +4,6 @@ var util = require('util');
 var path = require('path');
 //Event emitter stuff
 var EventEmitter = require('events').EventEmitter;
-//For throttling
-var RateLimiter = require('limiter').RateLimiter;
 
 //The class
 function AbstractQueue(name) {
@@ -33,27 +31,59 @@ function AbstractQueue(name) {
 	this.maxDequeueCount = 5;
 	
 	
-	//This is the object for throttling rate of messages
-	var limiter;
+	//This array stores the time messages were consumed so far
+	var messagesTimes = [];
+	
+	//Messages older than this interval will be removed
+	var throttleInterval = 0;
+	
+	//Max messages in interval
+	var throttleValue = 0;
+	
+	function removeExpired() {
+		var now = new Date();
+		while(messagesTimes.length > 0 && now - messagesTimes[0] > throttleInterval) {
+			messagesTimes.splice(0, 1);
+		}
+	}
+	
 	this.setThrottle = function(throttle) {
-		limiter = new RateLimiter(parseInt(throttle["throttle-value"]), throttle["throttle-unit"], true);
+		var interval = throttle["throttle-unit"];
+		switch (interval) {
+			case 'sec': case 'second':
+				throttleInterval = 1000; break;
+			case 'min': case 'minute':
+				throttleInterval = 1000 * 60; break;
+			case 'hr': case 'hour':
+				throttleInterval = 1000 * 60 * 60; break;
+			case 'day':
+				throttleInterval = 1000 * 60 * 60 * 24; break;
+		}
+		
+		throttleValue = parseInt(throttle["throttle-value"]);
 	};
 	
 	//Marks that the specified number of messages have been consumed from the queue
 	this.markConsumed = function(numConsumed) {
-		if(limiter) {
-			limiter.removeTokens(numConsumed, function(err, remaining) {
-				if(err) {
-					console.log(err);
-				}
-			});
+		if(throttleInterval) {
+			var now = new Date();
+			for(var i=0; i<numConsumed; i++) {
+				messagesTimes.push(now);
+			}
 		}
 	};
 	
 	//Returns the number of messages we can consume within the throttle bracket
 	this.getConsumable = function() {
-		if(limiter) {
-			return limiter.getTokensRemaining();
+		if(throttleInterval) {
+			//Remove any expired messages
+			removeExpired();
+			
+			var capacity = throttleValue - messagesTimes.length;
+			if(capacity < 0) {
+				capacity = 0;
+			}
+			return capacity;
 		}
 		else {
 			return Number.MAX_VALUE;

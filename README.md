@@ -68,7 +68,7 @@ You need to create a configuration file. The following snippet shows a sample
 				"queue-module":"redisqueue",
 				"queue-name":"yourqueue",
 				"queue-throttle": {
-					"throttle-unit":"seconds",
+					"throttle-unit":"minute",
 					"throttle-value":"60"
 				},
 				"queue-settings": {
@@ -105,7 +105,7 @@ You need to create a configuration file. The following snippet shows a sample
 	]
 }
 ```
-The `queue-throttle` setting (optional) if included in the queue definition limits the rate at which messages are consumed from the queue and passed to a worker. This is typically useful if the worker is calling an API that limits the rate at which requests can be made to it. Many public APIs have such a rate defined. The `throttle-unit` must be either `second`, `minute`, `hour` or `day`. The `throttle-value` must be a valid integer.
+The `queue-throttle` setting (optional) if included in the queue definition limits the rate at which messages are consumed from the queue and passed to a worker. This is typically useful if the worker is calling an API that limits the rate at which requests can be made to it. Many public APIs have such a rate defined. The `throttle-unit` must be either `second`, `minute`, `hour` or `day`. The `throttle-value` must be a valid integer. The rate will be limited to `throttle-value`/`throttle-unit`.
 
 The sample above uses an SQS queue for 'sendemail' jobType, which defines an aws-config-file. This file contains your AWS settings. A sample file (aws.json in the example above) is shown below:
 
@@ -266,7 +266,7 @@ A script using the broker can register for certain events. The following is a li
 * `queue-poison` - This event is raised when a message that has been dequeued too many times is automatically deleted
 * `queue-pushmany-completed` - This event signals that the `pushMany` call has completed and the script that is using the broker can now push another batch of messages. A report on the messages that were pushed to the queue is passed through this event. The structure of the report is documented next.
 * `broker-initialized` - After a call to `broker.connect()`. This event is raised when all the queues registered with the broker initialised.
-* `broker-started` - After a call to `broker.start()`. This event is raised when all the queues that are registered with the broker are now listening for messages.
+* `broker-started` - This event is raised when all the queues that are registered with the broker are now listening for messages. Queues should be started when the `queue-ready` event is raised.
 * `broker-stopped` - After a call to `broker.stop()`. This event is raised when all the queues that were listening for messages are no longer listening for messages.
 
 

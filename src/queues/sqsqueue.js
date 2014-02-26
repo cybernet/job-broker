@@ -320,56 +320,84 @@ exports.queue = function() {
 		}
 		
 		//The callback after the batch of messages was pushed to SQS
-		function pushManyFinished(err, data) {
-			//If there was an error, we simulate a response
-			//with all the messages in the failed list
-			if(err) {
-				//Simulate a result
-				var simulated = {};
-				//No successes
-				simulated.Successful = [];
-				//Initialize failures
-				simulated.Failed = [];
-				for(var i=0; i<pushManyMessages.length; i++) {
-					var simulatedItem = {};
-					simulatedItem.queueError = err;
-					simulatedItem.Id = pushManyMessages[i].id;
-					simulatedItem.SenderFault = false;
-					simulatedItem.Code = -1;
-					simulatedItem.Message = "Delete batch failed";
-					simulated.Failed.push(simulatedItem);
+		function PushManyFinisher(from, to, pushManyMessages, pushManyResult) {
+			var batchStart = from;
+			var batchEnd = to;
+			var result = pushManyResult;
+			var messages = pushManyMessages;
+			
+			this.batchCompleted = function(err, data) {
+				//If there was an error, we simulate a response
+				//with all the messages in the failed list
+				if(err) {
+					for(var i=batchStart; i<batchEnd; i++) {
+						var simulatedItem = {};
+						simulatedItem.queueError = err;
+						simulatedItem.Id = messages[i].id;
+						simulatedItem.SenderFault = false;
+						simulatedItem.Code = -1;
+						simulatedItem.Message = "Push many batch failed";
+						result.Failed.push(simulatedItem);
+					}
 				}
-				pushManyResult = simulated;
-			}
-			else {
-				//Otherwise, we store the result
-				pushManyResult = data;
-			}
-			//And start processing the result one message at a time
-			processPushOne();
+				else {
+					//Otherwise, we store the result
+					if(data) {
+						if(data.Successful) {
+							for(var s=0; s<data.Successful.length; s++) {
+								result.Successful.push(data.Successful[s]);
+							}
+						}
+						if(data.Failed) {
+							for(var f=0; f<data.Failed.length; f++) {
+								result.Failed.push(data.Failed[f]);
+							}
+						}
+					}
+				}
+				
+				if(batchEnd === messages.length - 1) {
+					//Start processing one by one
+					processPushOne();
+				}
+			};
 		}
+		
 		
 		//Let's generate the messages and start
 		var request = {};
 		request.QueueUrl = queueUrl;
 		request.Entries = [];
+		pushManyResult = {};
+		pushManyResult.Successful = [];
+		pushManyResult.Failed = [];
+		var from = 0;
 		for(var i=0; i<pushManyMessages.length; i++) {
 			var message = pushManyMessages[i];
 			message.id = uuid.v4();
-			
+		
 			var messageStorage = {};
 			messageStorage.payload = message.payload;
 			messageStorage.jobType = message.jobType;
-			
+		
 			var entry = {};
 			entry.Id = message.id;
 			entry.MessageBody = JSON.stringify(messageStorage);
 			entry.DelaySeconds = 0;
-			
-			request.Entries.push(entry);
-		}
 		
-		sqs.sendMessageBatch(request, pushManyFinished);
+			request.Entries.push(entry);
+			
+			//Send when we have accumulated batchSize items or if this is the last item
+			if((i+1) % batchSize === 0 || i === pushManyMessages.length - 1) {
+				sqs.sendMessageBatch(request, (new PushManyFinisher(from, i, pushManyMessages, pushManyResult)).batchCompleted);
+				if(i !== pushManyMessages.length - 1) {
+					request = {};
+					request.QueueUrl = queueUrl;
+					request.Entries = [];
+					from = i + 1;
+				}
+			}
+		}
 	}
 	
 	//Sends a batch of messages to SQS
@@ -594,10 +622,12 @@ exports.queue = function() {
 			if(queue.isStarted) {
 				//Initialize receiveOptions for the first time
 				var maxReceivable = queue.getConsumable();
+				var isThrottleSet = (maxReceivable !== Number.MAX_VALUE);
 				if(maxReceivable) {
 					if(maxReceivable > batchSize) {
 						maxReceivable = batchSize;
 					}
+					
 					receiveOptions = {
 						QueueUrl: queueUrl,
 						WaitTimeSeconds:queue.pollingInterval / 1000,
