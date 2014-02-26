@@ -237,7 +237,16 @@ exports.queue = function() {
 		pushManyMessages = messages;
 		pushedSuccessfullyMessages = [];
 		pushedFailfullyMessages = [];
-		pushManyResult = null;
+
+		//The result for a push many operation will store the
+		//responses from AWS
+		pushManyResult = {};
+		pushManyResult.Successful = [];
+		pushManyResult.Failed = [];
+		
+		//This is an array of objects that help in processing
+		//the result of a batch operation push to SQS
+		var finishers = [];
 		
 		//Get the error if any for a particular message (from the result received
 		//after sending a batch of messages to SQS)
@@ -291,7 +300,7 @@ exports.queue = function() {
 				pushedFailfullyMessages = null;
 				pushManyMessages = null;
 				pushManyResult = null;
-
+				finishers = null;
 				return;
 			}
 			else {
@@ -365,14 +374,15 @@ exports.queue = function() {
 		
 		
 		//Let's generate the messages and start
-		var request = {};
-		request.QueueUrl = queueUrl;
-		request.Entries = [];
-		pushManyResult = {};
-		pushManyResult.Successful = [];
-		pushManyResult.Failed = [];
+		var request = null;
+		
 		var from = 0;
 		for(var i=0; i<pushManyMessages.length; i++) {
+			if(!request) {
+				request = {};
+				request.QueueUrl = queueUrl;
+				request.Entries = [];
+			}
 			var message = pushManyMessages[i];
 			message.id = uuid.v4();
 		
@@ -389,12 +399,16 @@ exports.queue = function() {
 			
 			//Send when we have accumulated batchSize items or if this is the last item
 			if((i+1) % batchSize === 0 || i === pushManyMessages.length - 1) {
-				sqs.sendMessageBatch(request, (new PushManyFinisher(from, i, pushManyMessages, pushManyResult)).batchCompleted);
+				finishers.push(new PushManyFinisher(from, i, pushManyMessages, pushManyResult));
+				sqs.sendMessageBatch(request, finishers[finishers.length -1].batchCompleted);
 				if(i !== pushManyMessages.length - 1) {
 					request = {};
 					request.QueueUrl = queueUrl;
 					request.Entries = [];
 					from = i + 1;
+				}
+				else {
+					request = null;
 				}
 			}
 		}

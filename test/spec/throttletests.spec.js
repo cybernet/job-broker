@@ -147,6 +147,6 @@ function producerconsumer(qname, configfile){
 	});
 }
 
-//producerconsumer("Redis Q", "throttle.json");
+producerconsumer("Redis Q", "throttle.json");
 producerconsumer("SQS", "throttle-aws.json");
 
