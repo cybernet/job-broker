@@ -69,6 +69,10 @@ You need to create a configuration file. The following snippet shows a sample
 			"queue" : {
 				"queue-module":"redisqueue",
 				"queue-name":"yourqueue",
+				"queue-throttle": {
+					"throttle-unit":"seconds",
+					"throttle-value":"60"
+				},
 				"queue-settings": {
 					"host":"127.0.0.1",
 					"port":"6379",
@@ -103,8 +107,9 @@ You need to create a configuration file. The following snippet shows a sample
 	]
 }
 ```
+The `queue-throttle` setting (optional) if included in the queue definition limits the rate at which messages are consumed from the queue and passed to a worker. This is typically useful if the worker is calling an API that limits the rate at which requests can be made to it. Many public APIs have such a rate defined. The `throttle-unit` must be either `second`, `minute`, `hour` or `day`. The `throttle-value` must be a valid integer.
 
-The sample above uses an SQS queue which defines an aws-config-file. This file contains your AWS settings. A sample file (aws.json in the example above) is shown below:
+The sample above uses an SQS queue for 'sendemail' jobType, which defines an aws-config-file. This file contains your AWS settings. A sample file (aws.json in the example above) is shown below:
 
 ```javascript
 { 
