@@ -1,3 +1,9 @@
+v0.0.8
+------
+- Added new feature to throttle processing messages from a queue
+- Added unit tests for throttling
+- Added unit test for calling broker.push for an undefined jobType
+
 v0.0.7
 ------
 - Added more unit tests that test both SQS and Redis
