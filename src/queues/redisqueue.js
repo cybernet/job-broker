@@ -131,7 +131,11 @@ exports.queue = function() {
 		queue.initMaxDequeueCount();
 		
 		//Ok lets create a new RSMQ object
-		rsmq = new RedisSMQ( {host: queue.settings.host, port: queue.settings.port, ns: queue.settings.ns} );
+		var qsettings = {host: queue.settings.host, port: queue.settings.port, ns: queue.settings.ns};
+		if(queue.settings.options) {
+			qsettings.options = queue.settings.options;
+		}
+		rsmq = new RedisSMQ( qsettings );
 	};
 	
 	//Initialize the queue and callback

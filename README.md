@@ -162,7 +162,7 @@ exports.worker = function() {
 	//A worker must call worker.processCallback(err, message);
 	//once it is done with processing a messages
 	function sendCallback(message) {
-		console.log("Worker[simpleworker], QueueModule[" + worker.queue.moduleName + "], QueueName[" + worker.queue.queueName + "] - Message processed:");
+		console.log("Worker[simpleworker], QueueModule[" + worker.getQueue().moduleName + "], QueueName[" + worker.getQueue().queueName + "] - Message processed:");
 		console.log(JSON.stringify(message));
 		var error = errorCode.none;
 		
@@ -185,7 +185,7 @@ exports.worker = function() {
 		
 		//Errors should follow the format shown above.
 			
-		console.log("Worker[simpleworker], QueueModule[" + worker.queue.moduleName + "], QueueName[" + worker.queue.queueName + "] - Work called for message:");
+		console.log("Worker[simpleworker], QueueModule[" + worker.getQueue().moduleName + "], QueueName[" + worker.getQueue().queueName + "] - Work called for message:");
 		console.log(JSON.stringify(message));
 		//You would invoke you asynchronous function here
 		setTimeout(function() { sendCallback(message) }, 0);
@@ -241,7 +241,7 @@ The broker provides the following functions:
 1. `push(message)` - This pushes the message to one or more queues depending on `jobType` specified in the message.
 2. `pushMany(messages)` - This pushes an array of messages to a single queue. All the messages in the array must have one `jobType` and that `jobType` must correspond to a single queue. This method can only be invoked once. The invoker must listen for the `queue-pushmany-completed` event before pushing the next set of messages.
 3. `schedule(message, when)` - This pushes a message to one or more queues, but messages will only be processed after the delay (in seconds) specified by `when`. The delay is counted from the present time.
-4. `connect()` - This is the first function that should be called by a script using the broker. This call will result in a `queue-ready` event once a particular queue is ready. The worker and the queue are passed as arguments (in that order) for the `queue-ready` event. A script using the broker can then ask the queue to start listening for messages by calling `queue.start()`.
+4. `connect()` - This is the first function that should be called by a script using the broker. This call will result in a `queue-ready` event once a particular queue is ready. A result object is passed as an argument for the `queue-ready` event. The object contains worker and queue as properties. A script using the broker can then ask the queue to start listening for messages by calling `result.queue.start()`.
 5. `stop()` - This stops the message processing cycle for all queues.
 
 Queue Interface
