@@ -11,3 +11,7 @@ v0.0.7
 - Unit tests cleanup (delete the random queue created) on exit
 - Refactored worker and queue interfaces to be similar
 - Documented the module a little more
+
+v0.1.0
+------
+- Options for redis initialization can be specified in the config file see: https://github.com/mranney/node_redis#rediscreateclientport-host-options
