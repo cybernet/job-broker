@@ -249,7 +249,7 @@ Queue Interface
 Since the broker usually pushes messages to a queue, the queue interface is very similar to the Broker Interface. The only functions that are present in the queue and not in the Broker Interface are:
 
 1. `setInvisibilityTimeout(message, when)` - This function tells the queue that the specified message should not be made available to any other worker until `when` seconds have elapsed.
-2. `deleteQueue()` - Assuming a queue is initialised, a call to this function will delete the queue. This is useful during unit testing. This call may result in unexpected behaviour after the queue is deleted (if your code tries to push messages to a queue that has already been deleted), thus it is advised that this function should only be used for testing (or before a shutdown event of your service). No functions should be called after `deleteQueue()` has already been called.
+2. `deleteQueue()` - Assuming a queue is initialised, a call to this function will delete the queue. If the queue was being polled (by using `queue.start()`), the polling will stop. If all queues are stopped, the broker will stop too (`broker-stopped` wil be emitted). Calling any function on a deleted queue will result in an error.
 
 Broker Events
 -------------

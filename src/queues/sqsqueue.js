@@ -16,6 +16,9 @@ exports.queue = function() {
 	//Create an instance of the AbstractQueue
 	var queue = new AbstractQueue("SQSQueue");
 	
+	//Is this queue deleted
+	var isDeleted = false;
+	
 	//The variable for our sqs object
 	var sqs;
 	
@@ -167,6 +170,11 @@ exports.queue = function() {
 	//Function called after message is pushed to the queue
 	function pushCallback(message, err, data) {
 		if(err) {
+			if(err.code === "AWS.SimpleQueueService.NonExistentQueue") {
+				//The queue has been deleted, stop polling
+				removeQueue();
+			}
+			
 			//Callback with the error
 			var qError = errorCodes.getError("QUEUE_PUSH_ERROR");
 			qError.errorMessage = util.format(qError.errorMessage, err);
@@ -309,7 +317,7 @@ exports.queue = function() {
 				var pushErr = getPushedMessageError(message);
 
 				//If there was an error,add to failed list else add to success list
-				if(pushErr !== null) {
+				if(pushErr) {
 					if(pushErr.errorCode !== 0) {
 						message.id = undefined;
 						pushedFailfullyMessages.push({ message:message, error:pushErr });
@@ -339,7 +347,12 @@ exports.queue = function() {
 				//If there was an error, we simulate a response
 				//with all the messages in the failed list
 				if(err) {
-					for(var i=batchStart; i<batchEnd; i++) {
+					if(err.code === "AWS.SimpleQueueService.NonExistentQueue") {
+						//The queue has been deleted, stop polling
+						removeQueue();
+					}
+					
+					for(var i=batchStart; i<=batchEnd; i++) {
 						var simulatedItem = {};
 						simulatedItem.queueError = err;
 						simulatedItem.Id = messages[i].id;
@@ -429,6 +442,11 @@ exports.queue = function() {
 	//Function called after changing message visibility
 	function visibilityCallback(message, err, resp) {
 		if(err) {
+			if(err.code === "AWS.SimpleQueueService.NonExistentQueue") {
+				//The queue has been deleted, stop polling
+				removeQueue();
+			}
+			
 			//Callback with error
 			var qError = errorCodes.getError("QUEUE_VISIBILITY_TIMEOUT_ERROR");
 			qError.errorMessage = util.format(qError.errorMessage, err);
@@ -525,7 +543,9 @@ exports.queue = function() {
 				deleteCallbackBatch = null;
 				deleteBatchMessages = null;
 				//Let's poll for next batch
-				setTimeout(check, 0);
+				if(!isDeleted) {
+					setTimeout(check, 0);
+				}
 			}
 			else {
 				//Let's process the next message (FIFO)
@@ -548,6 +568,11 @@ exports.queue = function() {
 			batchRequest.Entries = null;
 			
 			if(err) {
+				if(err.code === "AWS.SimpleQueueService.NonExistentQueue") {
+					//The queue has been deleted, stop polling
+					removeQueue();
+				}
+				
 				//we need to notify observer that all messages deletion have failed
 				//create a simulated response adding all messages to Failed list
 				var simulated = {};
@@ -608,7 +633,9 @@ exports.queue = function() {
 			}
 			else {
 				numChecks++;
-				setTimeout(check, 1000);
+				if(!isDeleted) {
+					setTimeout(check, 1000);
+				}
 			}
 		}
 		
@@ -688,6 +715,12 @@ exports.queue = function() {
 		//Called when a batch of messages is retrieved from SQS
 		function messageReceived(err, data) {
 			if(err) {
+				if(err.code === "AWS.SimpleQueueService.NonExistentQueue") {
+					//The queue has been deleted, stop polling
+					stop(true);
+					return;
+				}
+				
 				//Raise an error
 				var queueError = errorCodes.getError("QUEUE_ERROR_RECEIVING_MESSAGE");
 				queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
@@ -743,16 +776,33 @@ exports.queue = function() {
 		});
 	};
 	
-	//Stop listening for messages
-	queue.stop = function () {
+	function stop(isRemoved) {
+		if(isRemoved) {
+			isDeleted = true;
+		}
 		//If we are polling
 		if(queue.isStarted) {
 			//Mark that we are not anymore
 			queue.isStarted = false;
 			//Call the stopped function
-			queue.stoppedFunction();
+			queue.stoppedFunction(isRemoved);
 		}
+	}
+	
+	//Stop listening for messages
+	queue.stop = function () {
+		stop();
 	};
+	
+	function removeQueue() {
+		if(queue.isStarted) {
+			stop(true);
+		}
+		else {
+			queue.queueRemoved();
+		}
+		isDeleted = true;
+	}
 	
 	//This function is only for Unit Testing
 	queue.deleteQueue = function(){
@@ -763,6 +813,7 @@ exports.queue = function() {
 		else {
 			sqs.deleteQueue({QueueUrl:queueUrl}, function(err) {
 				if (!err) {
+					removeQueue();
 					queue.queueDeleteCallback();
 				}
 				else {

@@ -158,6 +158,10 @@ exports.queue = function() {
 		}
 		else
 		{
+			if(err && err.name && err.name === "queueNotFound") {
+				removeQueue();
+			}
+			
 			//Callback with the error
 			var qError = errorCodes.getError("QUEUE_PUSH_ERROR");
 			qError.errorMessage = util.format(qError.errorMessage, err + ":" + resp);
@@ -291,6 +295,10 @@ exports.queue = function() {
 			queue.deleteCallback(errorCodes.getError("none"), message);
 		}
 		else {
+			if(err && err.name && err.name === "queueNotFound") {
+				removeQueue();
+			}
+			
 			//Callback with error
 			var qError = errorCodes.getError("QUEUE_DELETE_ERROR");
 			qError.errorMessage = util.format(qError.errorMessage, err + ":" + resp);
@@ -323,6 +331,10 @@ exports.queue = function() {
 			queue.visibilityCallback(errorCodes.getError("none"), message);
 		}
 		else {
+			if(err && err.name && err.name === "queueNotFound") {
+				removeQueue();
+			}
+			
 			//Callback with error
 			var qError = errorCodes.getError("QUEUE_VISIBILITY_TIMEOUT_ERROR");
 			qError.errorMessage = util.format(qError.errorMessage, err + ":" + resp);
@@ -348,8 +360,6 @@ exports.queue = function() {
 		}
 	};
 	
-	
-	
 	//This function polls the queue at the specified interval
 	function poller() {
 		if(queue.isStarted) {
@@ -368,6 +378,12 @@ exports.queue = function() {
 	//Callback when the receiveMessage call completes
 	function messageReceived(err, resp) {
 		if(err) {
+			if(err.name && err.name === "queueNotFound") {
+				//The queue has been deleted, stop polling
+				stop(true);
+				return;
+			}
+			
 			//Raise an error
 			var queueError = errorCodes.getError("QUEUE_ERROR_RECEIVING_MESSAGE");
 			queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
@@ -440,8 +456,7 @@ exports.queue = function() {
 		});
 	};
 	
-	//Stop listening for messages
-	queue.stop = function () {
+	function stop(isRemoved) {
 		//If we are polling
 		if(queue.isStarted) {
 			//Mark that we are not anymore
@@ -454,9 +469,23 @@ exports.queue = function() {
 				timerHandle = undefined;
 			}
 			//Call the stopped callback
-			queue.stoppedFunction();
+			queue.stoppedFunction(isRemoved);
 		}
+	}
+	
+	//Stop listening for messages
+	queue.stop = function () {
+		stop();
 	};
+	
+	function removeQueue() {
+		if(queue.isStarted) {
+			stop(true);
+		}
+		else {
+			queue.queueRemoved();
+		}
+	}
 	
 	//This function is only for Unit Testing
 	queue.deleteQueue = function(){
@@ -467,6 +496,7 @@ exports.queue = function() {
 		else {
 			rsmq.deleteQueue({qname:queue.queueName}, function(err) {
 				if (!err) {
+					removeQueue();
 					queue.queueDeleteCallback();
 				}
 				else {

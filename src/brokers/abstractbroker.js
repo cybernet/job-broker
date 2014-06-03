@@ -10,6 +10,21 @@ function AbstractBroker(name) {
 	//Make this an event emitter
 	EventEmitter.call(this);
 	
+	//Function to remove an element
+	if(!Array.prototype.remove) {
+		Array.prototype.remove = function() {
+			var what, a = arguments, L = a.length, ax;
+			while (L && this.length) {
+				what = a[--L];
+				while ((ax = this.indexOf(what)) !== -1) {
+					this.splice(ax, 1);
+				}
+			}
+			return this;
+		};
+	}
+	
+	
 	//Load the error codes
 	var errorCodes = require(path.join(__dirname, "../errors.js")).errors;
 	
@@ -225,8 +240,13 @@ function AbstractBroker(name) {
 			}
 		};
 		
+		//Called when a queue that is supposed to exist can no longer be found
+		queueModule.queueRemoved = function() {
+			eventMap[jobType].remove(queueModule);
+		};
+		
 		//Called when a queue has stopped listening for new messages
-		queueModule.stoppedFunction = function() {
+		queueModule.stoppedFunction = function(isDeleted) {
 			var myWorker = workerModule;
 			var myQueue = queueModule;
 			var myBroker = broker;
@@ -234,6 +254,10 @@ function AbstractBroker(name) {
 			queuesStarted--;
 			
 			var messageInfo = getError(myWorker, myQueue, errorCodes.getError("none"));
+			
+			if(isDeleted) {
+				queueModule.queueRemoved();
+			}
 			
 			myBroker.emit("queue-stopped", messageInfo);
 			
