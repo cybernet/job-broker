@@ -156,7 +156,7 @@ function brokerinterfacetests(qname, configfile){
 				
 				function queueErrorFunction(err, msg){
 					numProcessedError++;
-					expect(err.errorCode).toBe(err.errorCodes.QUEUE_INCOMPATIBLE_JOB_TYPES.errorCode);
+					expect(err.error.errorCode).toBe(err.error.errorCodes.QUEUE_INCOMPATIBLE_JOB_TYPES.errorCode);
 					q.deleteQueue();
 				}
 				
@@ -230,7 +230,7 @@ function brokerinterfacetests(qname, configfile){
 
 				
 				function queueErrorFunction(err, msg){
-					expect(err.errorCode).toBe(err.errorCodes.QUEUE_INVALID_JOB_TYPE.errorCode);
+					expect(err.error.errorCode).toBe(err.error.errorCodes.QUEUE_INVALID_JOB_TYPE.errorCode);
 					q.deleteQueue();
 				}
 				

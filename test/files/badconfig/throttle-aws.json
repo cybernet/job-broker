@@ -15,7 +15,7 @@
 				"queue-settings": {
 					"polling-interval":3000,
 					"invisibility-timeout":3600,
-					"aws-config-file":"/Users/varun/Development/github/job-broker/job-broker-files/test/files/badconfig/aws.json",
+					"aws-config-file":"/Users/varun/Development/github/job-broker/test/files/badconfig/aws.json",
 					"max-dequeue-count":3,
 					"delete-frequency-seconds":5
 				}

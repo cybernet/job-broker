@@ -268,21 +268,28 @@ function AbstractBroker(name) {
 		queuesNumber++;
 	};
 	
+	/*********************************************************************************************
+	 *                                     Broker API                                            *
+	 *********************************************************************************************/
+	
 	//Pushes the message to all queues registered
 	//for this type of message
 	this.push = function(msg) {
 		var err;
+		var errorInfo;
 		if(!msg.jobType) {
 			err = errorCodes.getError("QUEUE_INVALID_JOB_TYPE");
 			err.errorMessage = util.format(err.errorMessage, msg.jobType);
-			broker.emit("queue-error", err);
+			errorInfo = getError(undefined, undefined, err);
+			broker.emit("queue-error", errorInfo, msg);
 			return;
 		}
 		var queues = eventMap[msg.jobType.toLowerCase().trim()];
 		if(!queues || !queues.length) {
 			err = errorCodes.getError("QUEUE_INVALID_JOB_TYPE");
 			err.errorMessage = util.format(err.errorMessage, msg.jobType);
-			broker.emit("queue-error", err);
+			errorInfo = getError(undefined, undefined, err);
+			broker.emit("queue-error", errorInfo, msg);
 			return;
 		}
 		for(var i=0; i<queues.length; i++) {
@@ -293,13 +300,18 @@ function AbstractBroker(name) {
 	
 	//Pushes many messages to the queue asynchronously
 	this.pushMany = function(messages) {
+		var err;
+		var errorInfo;
+		
 		if(!messages || !messages.length) {
 			return;
 		}
 		
 		//TODO:Hard coded message limit for now
 		if(messages.length > 1000) {
-			broker.emit("queue-error", errorCodes.getError("QUEUE_TOO_MANY_MESSAGES"));
+			err = errorCodes.getError("QUEUE_TOO_MANY_MESSAGES");
+			errorInfo = getError(undefined, undefined, err);
+			broker.emit("queue-error", errorInfo, messages);
 			return;
 		}
 		
@@ -309,23 +321,27 @@ function AbstractBroker(name) {
 		for(i=0; i<messages.length; i++) {
 			var jobTypeCheck = messages[i].jobType.toLowerCase().trim();
 			if(jobType !== jobTypeCheck) {
-				broker.emit("queue-error", errorCodes.getError("QUEUE_INCOMPATIBLE_JOB_TYPES"));
+				err = errorCodes.getError("QUEUE_INCOMPATIBLE_JOB_TYPES");
+				errorInfo = getError(undefined, undefined, err);
+				broker.emit("queue-error", errorInfo, messages);
 				return;
 			}
 		}
 		
 		var queues = eventMap[jobType];
-		var err;
 		if(!queues) {
 			err = errorCodes.getError("QUEUE_INVALID_JOB_TYPE");
 			err.errorMessage = util.format(err.errorMessage, messages[0].jobType);
-			broker.emit("queue-error", err);
+			errorInfo = getError(undefined, undefined, err);
+			broker.emit("queue-error", errorInfo, messages);
 			return;
 		}
 		
 		//jobType can only be registered for one queue
 		if(queues.length !== 1) {
-			broker.emit("queue-error", errorCodes.getError("QUEUE_TOO_MANY_QUEUES"));
+			err = errorCodes.getError("QUEUE_TOO_MANY_QUEUES");
+			errorInfo = getError(undefined, undefined, err);
+			broker.emit("queue-error", errorInfo, messages);
 			return;
 		}
 		
@@ -336,11 +352,22 @@ function AbstractBroker(name) {
 	//Pushes the message to all queues registered
 	//for this type of message
 	this.schedule = function(msg, when) {
+		var err;
+		var errorInfo;
+		
 		if(!msg.jobType) {
+			err = errorCodes.getError("QUEUE_INVALID_JOB_TYPE");
+			err.errorMessage = util.format(err.errorMessage, msg.jobType);
+			errorInfo = getError(undefined, undefined, err);
+			broker.emit("queue-error", errorInfo, msg);
 			return;
 		}
 		var queues = eventMap[msg.jobType.toLowerCase().trim()];
-		if(!queues) {
+		if(!queues || !queues.length) {
+			err = errorCodes.getError("QUEUE_INVALID_JOB_TYPE");
+			err.errorMessage = util.format(err.errorMessage, msg.jobType);
+			errorInfo = getError(undefined, undefined, err);
+			broker.emit("queue-error", errorInfo, msg);
 			return;
 		}
 		for(var i=0; i<queues.length; i++) {
