@@ -35,14 +35,14 @@ exports.queue = function() {
 					queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
 					queueError.queueError = err;
 					queue.onError(queueError);
-					callback(false);
+					callback();
 					return;
 				}
 				else {
 					queueError = errorCodes.getError("QUEUE_UNEXPECTED_RESPONSE_FROM_SERVER");
 					queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, resp);
 					queue.onError(queueError);
-					callback(false);
+					callback();
 					return;
 				}
 			}
@@ -50,7 +50,7 @@ exports.queue = function() {
 			{
 				//Queue is created
 				queue.queueInitialized = true;
-				callback(true);
+				callback();
 				return;
 			}
 		});
@@ -82,13 +82,21 @@ exports.queue = function() {
 				}
 				//If it isn't
 				if(!queueExists) {
-					createQueue(callback);
+					if(!doNotCreateIfNotExisting) {
+						createQueue(callback);
+					}
+					else {
+						//The queue is deleted!
+						removeQueue();
+						callback();
+						return;
+					}
 				}
 				else
 				{
 					//Queue already exists
 					queue.queueInitialized = true;
-					callback(true);
+					callback();
 					return;
 				}
 			});
@@ -139,9 +147,11 @@ exports.queue = function() {
 	};
 	
 	var isConnected = false;
+	var doNotCreateIfNotExisting;
 	
 	//Initialize the queue and callback
-	queue.connect = function() {
+	queue.connect = function(dncine) {
+		doNotCreateIfNotExisting = dncine;
 		initialize(function() {
 			if(queue.queueInitialized && !isConnected) {
 				queue.onReady();
@@ -486,7 +496,7 @@ exports.queue = function() {
 			stop(true);
 		}
 		else {
-			queue.queueRemoved();
+			queue.queueDeleteCallback();
 		}
 	}
 	
@@ -500,7 +510,6 @@ exports.queue = function() {
 			rsmq.deleteQueue({qname:queue.queueName}, function(err) {
 				if (!err) {
 					removeQueue();
-					queue.queueDeleteCallback();
 				}
 				else {
 					//Raise an error

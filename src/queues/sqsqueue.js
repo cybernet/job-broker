@@ -57,7 +57,7 @@ exports.queue = function() {
 						queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
 						queueError.queueError = err;
 						queue.onError(queueError);
-						callback(false);
+						callback();
 						return;
 					}
 					else {
@@ -66,7 +66,7 @@ exports.queue = function() {
 						queueUrl = data.QueueUrl;
 						receiveService = getReceiveService();
 						deleteService = getDeleteService();
-						callback(true);
+						callback();
 						return;
 					}
 				});
@@ -78,7 +78,41 @@ exports.queue = function() {
 	function initialize(callback) {
 		//If we haven't done initialization already
 		if(!queue.queueInitialized) {
-			createQueue(callback);
+			if(!doNotCreateIfNotExisting) {
+				createQueue(callback);
+			}
+			else {
+				//We need to try to connect to the queue
+				var params = {
+					QueueName: queue.queueName // required
+				};
+				sqs.getQueueUrl(params, function(err, data) {
+					if(err) {
+						//The queue is deleted!
+						if(err.code === "AWS.SimpleQueueService.NonExistentQueue") {
+							//The queue has been deleted, stop polling
+							removeQueue();
+						}
+						else {
+							var queueError = errorCodes.getError("QUEUE_ERROR_CREATING_QUEUE");
+							queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
+							queueError.queueError = err;
+							queue.onError(queueError);
+							callback();
+							return;
+						}
+					}
+					else {
+						//Queue is created
+						queue.queueInitialized = true;
+						queueUrl = data.QueueUrl;
+						receiveService = getReceiveService();
+						deleteService = getDeleteService();
+						callback();
+						return;
+					}
+				});
+			}
 		}
 		else {
 			//Queue is already initialized
@@ -160,8 +194,11 @@ exports.queue = function() {
 		}
 	};
 	
+	var doNotCreateIfNotExisting;
+	
 	//Initialize and raise event when ready
-	queue.connect = function() {
+	queue.connect = function(dncine) {
+		doNotCreateIfNotExisting = dncine;
 		initialize(function() {
 			if(queue.queueInitialized && !isConnected) {
 				queue.onReady();
@@ -802,7 +839,7 @@ exports.queue = function() {
 			stop(true);
 		}
 		else {
-			queue.queueRemoved();
+			queue.queueDeleteCallback();
 		}
 		isDeleted = true;
 	}
@@ -817,7 +854,6 @@ exports.queue = function() {
 			sqs.deleteQueue({QueueUrl:queueUrl}, function(err) {
 				if (!err) {
 					removeQueue();
-					queue.queueDeleteCallback();
 				}
 				else {
 					//Raise an error

@@ -381,11 +381,6 @@ function AbstractBroker(name) {
 			}
 		};
 		
-		//Called when a queue that is supposed to exist can no longer be found
-		queueModule.queueRemoved = function() {
-			eventMap[jobType].remove(queueModule);
-		};
-		
 		//Called when a queue has stopped listening for new messages
 		queueModule.stoppedFunction = function(isDeleted) {
 			var myWorker = workerModule;
@@ -396,11 +391,11 @@ function AbstractBroker(name) {
 			
 			var messageInfo = getError(myWorker, myQueue, errorCodes.getError("none"));
 			
-			if(isDeleted) {
-				queueModule.queueRemoved();
-			}
-			
 			myBroker.emit("queue-stopped", messageInfo);
+			
+			if(isDeleted) {
+				queueModule.queueDeleteCallback(0);
+			}
 			
 			if(queuesStarted === 0) {
 				myBroker.emit("broker-stopped");
@@ -424,7 +419,15 @@ function AbstractBroker(name) {
 				myBroker.emit("queue-error", messageInfo);
 			}
 			else {
-				myBroker.emit("queue-deleted-queue");
+				queuesNumber--;
+				
+				eventMap[jobType].remove(queueModule);
+				myBroker.emit("queue-deleted-queue", messageInfo);
+				
+				if(queuesReady === queuesNumber) {
+					//All queues are initialized
+					myBroker.emit("broker-initialized");
+				}
 			}
 		};
 		
@@ -542,7 +545,7 @@ function AbstractBroker(name) {
 	};
 	
 	
-	this.connect = function () {
+	this.connect = function (doNotCreateIfNotExisting) {
 		if(queuesReady === queuesNumber) {
 			//All queues are initialized
 			this.emit("broker-initialized");
@@ -555,7 +558,7 @@ function AbstractBroker(name) {
 				if(queues) {
 					for(var i=0; i<queues.length; i++) {
 						var queueModule = queues[i];
-						queueModule.connect();
+						queueModule.connect(doNotCreateIfNotExisting);
 					}
 				}
 			}
@@ -582,6 +585,15 @@ function AbstractBroker(name) {
 				}
 			}
 		}
+	};
+	
+	//Check if a queue exists for a particular jobType
+	this.hasQueue = function(jobType) {
+		var queues = eventMap[jobType.toLowerCase().trim()];
+		if(!queues || !queues.length) {
+			return false;
+		}
+		return true;
 	};
 	
 	//Utility method to throw an error with tag

@@ -23,7 +23,7 @@ var JobBroker = function(debug) {
 			if(isFunction(file) && !callBack) {
 				//Someone wants the naked broker
 				var resultObj = errorCodes.getError("none");
-				file(resultObj, broker);
+				file(broker);
 				return;
 			}
 			
