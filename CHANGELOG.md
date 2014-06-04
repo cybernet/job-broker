@@ -20,3 +20,9 @@ v0.1.1
 ------
 - Proper handling of deleted queues. If a queue is deleted, its polling will automatically shutdown on all servers where the queue was being polled
 - Added support for programmatically configuring the broker
+
+v0.1.2
+------
+- More unit tests
+- Ability to attempt to initialise a queue without creating a new one if it doesn't exist
+- Method to check if a queue exists for a particular jobType
