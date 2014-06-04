@@ -241,8 +241,9 @@ The broker provides the following functions:
 1. `push(message)` - This pushes the message to one or more queues depending on `jobType` specified in the message.
 2. `pushMany(messages)` - This pushes an array of messages to a single queue. All the messages in the array must have one `jobType` and that `jobType` must correspond to a single queue. This method can only be invoked once. The invoker must listen for the `queue-pushmany-completed` event before pushing the next set of messages.
 3. `schedule(message, when)` - This pushes a message to one or more queues, but messages will only be processed after the delay (in seconds) specified by `when`. The delay is counted from the present time.
-4. `connect()` - This is the first function that should be called by a script using the broker. This call will result in a `queue-ready` event once a particular queue is ready. A result object is passed as an argument for the `queue-ready` event. The object contains worker and queue as properties. A script using the broker can then ask the queue to start listening for messages by calling `result.queue.start()`.
+4. `connect(doNotCreateMissingQueue)` - This is the first function that should be called by a script using the broker. This call will result in a `queue-ready` event once a particular queue is ready. The optional parameter `doNotCreateMissingQueue` if set to true will result in avoiding the creation of any queue that does not already exist (normally queues are created if they don't exist). A result object is passed as an argument for the `queue-ready` event. The object contains worker and queue as properties. A script using the broker can then ask the queue to start listening for messages by calling `result.queue.start()`. If called with `doNotCreateMissingQueue` set to true, when a queue is not found, the `queue-deleted-queue` event will be emitted for that queue (instead of `queue-ready`).
 5. `stop()` - This stops the message processing cycle for all queues.
+6. `hasQueue(jobType)` - This function synchronously returns true if there exists a queue registered with the broker for the specified jobType 
 
 Queue Interface
 ---------------
@@ -268,6 +269,7 @@ A script using the broker can register for certain events. The following is a li
 * `broker-initialized` - After a call to `broker.connect()`. This event is raised when all the queues registered with the broker initialised.
 * `broker-started` - This event is raised when all the queues that are registered with the broker are now listening for messages. Queues should be started when the `queue-ready` event is raised.
 * `broker-stopped` - After a call to `broker.stop()`. This event is raised when all the queues that were listening for messages are no longer listening for messages.
+* `config-loaded` - When the broker is loaded without a config file (with dynamic configuration), this event is emitted after the config has been loaded.
 
 
 Structure of a broker event notification
@@ -301,7 +303,7 @@ broker.on("queue-received", function(notification, message) {
 });
 ```
 
-This does not apply to these events: `broker-initialized`, `broker-started`, and `broker-stopped` as these events are aggregate events and do not correspond to any particular (worker, queue) pair.
+This does not apply to these events: `broker-initialized`, `broker-started`, `broker-stopped` and `config-loaded` as these events are aggregate events and do not correspond to any particular (worker, queue) pair.
 
 Structure of the report object resulting from a pushMany call
 -------------------------------------------------------------
@@ -346,6 +348,11 @@ Pushing messages in batches
 ---------------------------
 Please see the file:
 `test/spec/producerconsumer.spec.js`
+
+Dynamic Configuration
+---------------------
+Please see the file:
+`test/spec/dynamic.spec.js`
 
 Producer only configuration
 ---------------------------
