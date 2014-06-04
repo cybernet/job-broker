@@ -15,3 +15,8 @@ v0.0.7
 v0.1.0
 ------
 - Options for redis initialization can be specified in the config file see: https://github.com/mranney/node_redis#rediscreateclientport-host-options
+
+v0.1.1
+------
+- Proper handling of deleted queues. If a queue is deleted, its polling will automatically shutdown on all servers where the queue was being polled
+- Added support for programmatically configuring the broker
