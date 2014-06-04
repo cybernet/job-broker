@@ -508,7 +508,7 @@ exports.queue = function() {
 		}
 		else {
 			rsmq.deleteQueue({qname:queue.queueName}, function(err) {
-				if (!err) {
+				if (!err || err.name === "queueNotFound") {
 					removeQueue();
 				}
 				else {

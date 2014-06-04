@@ -852,7 +852,7 @@ exports.queue = function() {
 		}
 		else {
 			sqs.deleteQueue({QueueUrl:queueUrl}, function(err) {
-				if (!err) {
+				if (!err || err.code === "AWS.SimpleQueueService.NonExistentQueue") {
 					removeQueue();
 				}
 				else {
