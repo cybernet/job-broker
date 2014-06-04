@@ -1,7 +1,7 @@
 {
   "name": "job-broker",
   "main": "./src/broker.js",
-  "version": "0.1.1",
+  "version": "0.1.2-pre",
   "description": "A broker to add jobs to queues and specify workers to process them",
   "scripts": {
     "test": "grunt"
