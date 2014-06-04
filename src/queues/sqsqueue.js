@@ -72,6 +72,8 @@ exports.queue = function() {
 				});
 	}
 	
+	var isConnected = false;
+	
 	//A function to initialize the queue, creating it if it does not exists
 	function initialize(callback) {
 		//If we haven't done initialization already
@@ -161,8 +163,9 @@ exports.queue = function() {
 	//Initialize and raise event when ready
 	queue.connect = function() {
 		initialize(function() {
-			if(queue.queueInitialized) {
+			if(queue.queueInitialized && !isConnected) {
 				queue.onReady();
+				isConnected = true;
 			}
 		});
 	};

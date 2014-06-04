@@ -138,11 +138,14 @@ exports.queue = function() {
 		rsmq = new RedisSMQ( qsettings );
 	};
 	
+	var isConnected = false;
+	
 	//Initialize the queue and callback
 	queue.connect = function() {
 		initialize(function() {
-			if(queue.queueInitialized) {
+			if(queue.queueInitialized && !isConnected) {
 				queue.onReady();
+				isConnected = true;
 			}
 		});
 	};

@@ -46,6 +46,10 @@ function AbstractBroker(name) {
 	//Total number of queues in ready state
 	var queuesReady = 0;
 	
+	//We need to check that a queue with particular module and name is defined only once
+	//Thus, we maintain a simple hashtable of queuemoduleName + queueName
+	var queueMap = {};
+	
 	//Utility function to return the error meta info
 	function getError(myWorker, myQueue, err) {
 		var errorInfo = {};
@@ -55,7 +59,144 @@ function AbstractBroker(name) {
 		return errorInfo;
 	}
 	
-	this.register = function(jobType, workerModule, queueModule) {
+	this.addModules = function(config, callback) {
+		//Load the checker module
+		var CheckerClass = require(path.join(__dirname, "../configerrorchecker.js")).checker;
+		var checker = new CheckerClass(function(err) {
+			if(callback) {
+				callback(err);
+			}
+			else {
+				this.emit("config-error", err);
+			}
+		}, undefined);
+		
+		checker.setQueueMap(queueMap);
+		
+		//Let's load the workers
+		var workerObjs = config.workers;
+	
+		//Check that there is at least one worker definition
+		if(checker.checkWorkersNode(workerObjs)) {
+			return;
+		}
+		
+		//Counter to iterate through workers etc.
+		var i;
+	
+		//Variable to keep a loaded worker config
+		var workerConfig;
+	
+		//Go through all the workers
+		for(i=0; i<workerObjs.length; i++) {
+			workerConfig = workerObjs[i];
+		
+			//Check that job-type is defined
+			if(checker.checkJobType(workerConfig, i)) {
+				return;
+			}
+		
+			//Store the job type
+			var jobType = workerConfig["job-type"];
+		
+			//Worker node must exist
+			if(checker.checkWorkerNode(workerConfig, i)) {
+				return;
+			}
+		
+			//Get the node
+			var workerObj = workerConfig.worker;
+		
+			//worker-module must exist
+			if(checker.checkWorkerModule(workerObj, i)) {
+				return;
+			}
+		
+			//Get the module name
+			var workerModuleName = workerObj["worker-module"];
+		
+			//Object to load worker in
+			var workerCheck = { workerModule:undefined };
+		
+			//Check if worker module can be loaded and initialized
+			if(checker.checkLoadWorkerModule(workerObj, i, workerCheck)) {
+				return;
+			}
+		
+			//The module itself
+			var workerModule = workerCheck.workerModule;
+		
+			//Queue node must exist
+			if(checker.checkQueueNode(workerConfig, i)) {
+				return;
+			}
+		
+			//Store it
+			var queueObj = workerConfig.queue;
+		
+			//It must comtain a queue-module node
+			if(checker.checkQueueModule(queueObj, i)) {
+				return;
+			}
+		
+			//It must also have a queue name
+			if(checker.checkQueueName(queueObj, i)) {
+				return;
+			}
+			
+			//If throttling is defined, check its config
+			if(checker.checkQueueThrottle(queueObj, i)) {
+				return;
+			}
+		
+			//Store the queue name
+			var queueName = queueObj["queue-name"];
+		
+			//Standardise queue names to lower case
+			queueName = queueName.toLowerCase().trim();
+		
+			//Store the queue module name
+			var queueModuleName = queueObj["queue-module"];
+		
+			var checkerq = { queueModule: undefined };
+		
+			//Check if we can load the queue module
+			if(checker.checkLoadQueueModule(queueObj, i, checkerq)) {
+				return;
+			}
+		
+			var queueModule = checkerq.queueModule;
+		
+			//We now have the worker module and the queuemodule loaded
+			//Let's add some meta data:
+			
+			//This is the index of the (queue, worker) pair in the config file
+			workerModule.jobType = jobType;
+			queueModule.jobType = jobType;
+			
+			
+			if(checker.checkQueueConstraint(queueModuleName, queueName)) {
+				return;
+			}
+		
+			//Register this stuff with the broker
+			register(jobType, workerModule, queueModule);
+		}
+		
+		//We don't need the checker anymore
+		checker = null;
+		
+		//Success
+		var resultObj = errorCodes.getError("none");
+		if(callback) {
+			callback(resultObj, this);
+		}
+		else {
+			this.emit("config-loaded", resultObj);
+		}
+	};
+	
+	function register(jobType, workerModule, queueModule) {
 		//We use only lowercase for jobType
 		jobType = jobType.toLowerCase().trim();
 		
@@ -290,7 +431,7 @@ function AbstractBroker(name) {
 		
 		//Record the number of queues
 		queuesNumber++;
-	};
+	}
 	
 	/*********************************************************************************************
 	 *                                     Broker API                                            *
@@ -402,6 +543,12 @@ function AbstractBroker(name) {
 	
 	
 	this.connect = function () {
+		if(queuesReady === queuesNumber) {
+			//All queues are initialized
+			this.emit("broker-initialized");
+			return;
+		}
+		
 		for(var propt in eventMap) {
 			if (eventMap.hasOwnProperty(propt)) {
 				var queues = eventMap[propt];
@@ -419,6 +566,11 @@ function AbstractBroker(name) {
 	//listen for and thus, all queues stop listening
 	//for messages
 	this.stop = function () {
+		if(queuesStarted === 0) {
+			this.emit("broker-stopped");
+			return;
+		}
+		
 		for(var propt in eventMap) {
 			if(eventMap.hasOwnProperty(propt)) {
 				var queues = eventMap[propt];

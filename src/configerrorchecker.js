@@ -23,6 +23,10 @@ exports.checker = function(cb, cp) {
 		}
 	}
 	
+	checker.setQueueMap = function(map) {
+		queueMap = map;
+	};
+	
 	//Check that the config file exists
 	checker.checkFileExistsError = function() {
 		//Check if file exists
