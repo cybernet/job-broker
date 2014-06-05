@@ -422,8 +422,13 @@ function AbstractBroker(name) {
 				//Only decrease queue count if queue was actually removed
 				var numQueuesCurrent = eventMap[jobType].length;
 				eventMap[jobType].remove(queueModule);
+				
 				if(eventMap[jobType].length !== numQueuesCurrent) {
+					if(eventMap[jobType].length === 0) {
+						delete eventMap[jobType];
+					}
 					queuesNumber--;
+					delete queueMap[myQueue.moduleName + "," + myQueue.queueName];
 				}
 				
 				myBroker.emit("queue-deleted-queue", messageInfo);
