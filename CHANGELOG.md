@@ -26,3 +26,7 @@ v0.1.2
 - More unit tests
 - Ability to attempt to initialise a queue without creating a new one if it doesn't exist
 - Method to check if a queue exists for a particular jobType
+
+v0.1.3
+------
+- Maintainence Release (contains some bug fixes related to v0.1.2)
