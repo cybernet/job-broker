@@ -420,11 +420,17 @@ function AbstractBroker(name) {
 			}
 			else {
 				//Only decrease queue count if queue was actually removed
-				var numQueuesCurrent = eventMap[jobType].length;
-				eventMap[jobType].remove(queueModule);
+				var numQueuesCurrent = 0;
+				var newLength = 0;
 				
-				if(eventMap[jobType].length !== numQueuesCurrent) {
-					if(eventMap[jobType].length === 0) {
+				if(eventMap[jobType]) {
+					numQueuesCurrent = eventMap[jobType].length;
+					eventMap[jobType].remove(queueModule);
+					newLength = eventMap[jobType].length;
+				}
+				
+				if(newLength !== numQueuesCurrent) {
+					if(newLength === 0) {
 						delete eventMap[jobType];
 					}
 					queuesNumber--;
@@ -433,7 +439,7 @@ function AbstractBroker(name) {
 				
 				myBroker.emit("queue-deleted-queue", messageInfo);
 				
-				if(queuesReady === queuesNumber && eventMap[jobType].length !== numQueuesCurrent) {
+				if(queuesReady === queuesNumber && newLength !== numQueuesCurrent) {
 					//All queues are initialized
 					myBroker.emit("broker-initialized");
 				}
