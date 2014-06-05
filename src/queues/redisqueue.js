@@ -31,6 +31,13 @@ exports.queue = function() {
 			if (resp!==1) {
 				//Not what we were expecting
 				if(err) {
+					if(err.name === "queueExists") {
+						//Queue is created
+						queue.queueInitialized = true;
+						callback();
+						return;
+					}
+					
 					queueError = errorCodes.getError("QUEUE_ERROR_CREATING_QUEUE");
 					queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
 					queueError.queueError = err;
