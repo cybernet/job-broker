@@ -67,7 +67,7 @@ function AbstractBroker(name) {
 				callback(err);
 			}
 			else {
-				this.emit("config-error", err);
+				broker.emit("config-error", err);
 			}
 		}, undefined);
 		
@@ -192,7 +192,7 @@ function AbstractBroker(name) {
 			callback(resultObj, this);
 		}
 		else {
-			this.emit("config-loaded", resultObj);
+			broker.emit("config-loaded", resultObj);
 		}
 	};
 	
@@ -612,5 +612,4 @@ function AbstractBroker(name) {
 }
 
 util.inherits(AbstractBroker, EventEmitter);
-
 module.exports = AbstractBroker;
