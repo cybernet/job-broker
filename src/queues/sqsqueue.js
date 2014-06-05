@@ -626,8 +626,16 @@ exports.queue = function() {
 					simulatedItem.Id = deleteBatchMessages[i].id;
 					simulatedItem.SenderFault = false;
 					simulatedItem.Code = -1;
-					simulatedItem.Message = "Delete batch failed";
-					simulated.Failed.push(simulatedItem);
+					
+					if(err.code !== "AWS.SimpleQueueService.NonExistentQueue") {
+						simulatedItem.Message = "Delete batch failed";
+						simulated.Failed.push(simulatedItem);
+					}
+					else {
+						simulatedItem.Message = "Queue deleted";
+						simulated.Successful.push(simulatedItem);
+					}
+					
 				}
 				deleteCallbackBatch = simulated;
 			}

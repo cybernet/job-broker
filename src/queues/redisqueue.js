@@ -303,7 +303,7 @@ exports.queue = function() {
 	
 	//Function called after message is deleted from the queue
 	function deleteCallback(message, err, resp) {
-		if (resp) {
+		if (resp || !err) {
 			//No error
 			queue.deleteCallback(errorCodes.getError("none"), message);
 		}
