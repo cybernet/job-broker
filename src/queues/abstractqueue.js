@@ -227,7 +227,7 @@ function AbstractQueue(name) {
 	
 	//For internal use only
 	this.pushInitializationFailure = function(message) {
-		var queueError = errorCodes.getError("QUEUE_PUSH_ERROR_QUEUE_NOT_INITIALIZED");
+		var queueError = errorCodes.getError("QUEUE_PUSH_NOT_INITIALIZED");
 		queue.pushCallback(queueError, message);
 		queueError = null;
 	};
