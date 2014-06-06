@@ -566,7 +566,7 @@ function AbstractBroker(name) {
 	};
 	
 	
-	this.connect = function (doNotCreateIfNotExisting) {		
+	this.connect = function (doNotCreateIfNotExisting) {
 		for(var propt in eventMap) {
 			if (eventMap.hasOwnProperty(propt)) {
 				var queues = eventMap[propt];
