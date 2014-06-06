@@ -353,6 +353,8 @@ function AbstractBroker(name) {
 			//One more queue is ready
 			queuesReady++;
 			
+			myQueue.isReady = true;
+			
 			var messageInfo = getError(myWorker, myQueue, errorCodes.getError("none"));
 			
 			myBroker.emit("queue-ready", messageInfo);
@@ -435,6 +437,10 @@ function AbstractBroker(name) {
 					}
 					queuesNumber--;
 					delete queueMap[myQueue.moduleName + "," + myQueue.queueName];
+					
+					if(myQueue.isReady) {
+						queuesReady--;
+					}
 				}
 				
 				myBroker.emit("queue-deleted-queue", messageInfo);
@@ -560,13 +566,7 @@ function AbstractBroker(name) {
 	};
 	
 	
-	this.connect = function (doNotCreateIfNotExisting) {
-		if(queuesReady === queuesNumber) {
-			//All queues are initialized
-			this.emit("broker-initialized");
-			return;
-		}
-		
+	this.connect = function (doNotCreateIfNotExisting) {		
 		for(var propt in eventMap) {
 			if (eventMap.hasOwnProperty(propt)) {
 				var queues = eventMap[propt];
