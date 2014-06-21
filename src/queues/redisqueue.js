@@ -161,12 +161,13 @@ exports.queue = function() {
 	
 	var isClosed = false;
 	
-	function close() {
+	queue.terminate = function() {
 		if(!isClosed) {
 			rsmq.redis.quit();
 			isClosed = true;
+			queue.closedFunction();
 		}
-	}
+	};
 	
 	//Initialize the queue and callback
 	queue.connect = function(dncine) {
@@ -343,7 +344,7 @@ exports.queue = function() {
 		messagesBeingProcessed--;
 		
 		if(isQueueInListeningMode && !queue.isStarted && messagesBeingProcessed === 0) {
-			close();
+			queue.terminate();
 		}
 	};
 	
@@ -382,7 +383,7 @@ exports.queue = function() {
 				messagesBeingProcessed--;
 				
 				if(isQueueInListeningMode && !queue.isStarted && messagesBeingProcessed === 0) {
-					close();
+					queue.terminate();
 				}
 			});
 		}
@@ -437,14 +438,14 @@ exports.queue = function() {
 				}
 				else {
 					if(messagesBeingProcessed === 0) {
-						close();
+						queue.terminate();
 					}
 				}
 			}
 		}
 		else {
 			if(messagesBeingProcessed === 0) {
-				close();
+				queue.terminate();
 			}
 		}
 	}
@@ -474,7 +475,7 @@ exports.queue = function() {
 			}
 			else {
 				if(messagesBeingProcessed === 0) {
-					close();
+					queue.terminate();
 				}
 			}
 		}
@@ -510,7 +511,7 @@ exports.queue = function() {
 				}
 				else {
 					if(messagesBeingProcessed === 0) {
-						close();
+						queue.terminate();
 					}
 				}
 			}
@@ -522,7 +523,7 @@ exports.queue = function() {
 				}
 				else {
 					if(messagesBeingProcessed === 0) {
-						close();
+						queue.terminate();
 					}
 				}
 			}
@@ -564,11 +565,11 @@ exports.queue = function() {
 				//Unset the handle
 				timerHandle = undefined;
 			}
-			if(messagesBeingProcessed === 0) {
-				close();
-			}
 			//Call the stopped callback
 			queue.stoppedFunction(isRemoved);
+			if(messagesBeingProcessed === 0) {
+				queue.terminate();
+			}
 		}
 	}
 	

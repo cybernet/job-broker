@@ -209,6 +209,12 @@ function AbstractQueue(name) {
 		queue.log("stop() not implemented");
 	};
 	
+	//Close underlying connection for the queue
+	this.terminate = function () {
+		queue.log("terminate() not implemented");
+		queue.closedFunction();
+	};
+	
 	this.deleteQueue = function() {
 		queue.log("deleteQueue() not implemented");
 	};

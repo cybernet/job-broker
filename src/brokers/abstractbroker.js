@@ -366,6 +366,19 @@ function AbstractBroker(name) {
 			}
 		};
 		
+		//Called when a queue closes its underlying connection
+		queueModule.closedFunction = function() {
+			var myWorker = workerModule;
+			var myQueue = queueModule;
+			var myBroker = broker;
+			
+			queuesStarted++;
+			
+			var messageInfo = getError(myWorker, myQueue, errorCodes.getError("none"));
+			
+			myBroker.emit("queue-closed", messageInfo);
+		};
+		
 		//Called when a queue is listening for new messages
 		queueModule.startedFunction = function() {
 			var myWorker = workerModule;
@@ -581,8 +594,7 @@ function AbstractBroker(name) {
 		}
 	};
 	
-	//Emits the queue-stop message which all queues
-	//listen for and thus, all queues stop listening
+	//All queues stop listening
 	//for messages
 	this.stop = function () {
 		if(queuesStarted === 0) {
@@ -597,6 +609,22 @@ function AbstractBroker(name) {
 					for(var i=0; i<queues.length; i++) {
 						var queueModule = queues[i];
 						queueModule.stop();
+					}
+				}
+			}
+		}
+	};
+	
+	//Closes the underlying connection for all queues
+	//No queue operation should be called after this
+	this.close = function () {
+		for(var propt in eventMap) {
+			if(eventMap.hasOwnProperty(propt)) {
+				var queues = eventMap[propt];
+				if(queues) {
+					for(var i=0; i<queues.length; i++) {
+						var queueModule = queues[i];
+						queueModule.terminate();
 					}
 				}
 			}
