@@ -30,3 +30,7 @@ v0.1.2
 v0.1.3, v0.1.4, v0.1.5
 ----------------------
 - Maintainence Releases (contain some bug fixes related to v0.1.1 and v0.1.2 after manual testing) 
+
+v0.1.6
+------
+- Close Redis connections on queue stop (for Redis Queue)
