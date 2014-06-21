@@ -234,6 +234,7 @@ function AbstractBroker(name) {
 				//Since message is not deleted,
 				//It should become visible for
 				//processing after some time
+				myQueue.markFailed(message); //This is for connection closing, if queue stop is called
 				myBroker.emit("work-error", metaError, message);
 			}
 		};

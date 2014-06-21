@@ -63,6 +63,11 @@ function AbstractQueue(name) {
 		throttleValue = parseInt(throttle["throttle-value"]);
 	};
 	
+	//Tells the queue that a particular message failed to process
+	this.markFailed = function(message) {
+		queue.log("markFailed() not implemented");
+	};
+	
 	//Marks that the specified number of messages have been consumed from the queue
 	this.markConsumed = function(numConsumed) {
 		if(throttleInterval) {

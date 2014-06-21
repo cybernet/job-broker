@@ -23,6 +23,9 @@ exports.queue = function() {
 	//the timers
 	var timerHandle;
 	
+	//If queue.start was ever called
+	var isQueueInListeningMode;
+	
 	//Create a queue
 	function createQueue(callback) {
 		//Create the queue
@@ -156,6 +159,15 @@ exports.queue = function() {
 	var isConnected = false;
 	var doNotCreateIfNotExisting;
 	
+	var isClosed = false;
+	
+	function close() {
+		if(!isClosed) {
+			rsmq.redis.quit();
+			isClosed = true;
+		}
+	}
+	
 	//Initialize the queue and callback
 	queue.connect = function(dncine) {
 		doNotCreateIfNotExisting = dncine;
@@ -166,6 +178,8 @@ exports.queue = function() {
 			}
 		});
 	};
+	
+	var messagesBeingProcessed = 0;
 	
 	//Function called after message is pushed to the queue
 	function pushCallback(message, err, resp) {
@@ -193,6 +207,23 @@ exports.queue = function() {
 	}
 	
 	function myPush(message, when, callback) {
+		//Queue is not connected
+		if(isClosed) {
+			var simulatedError = {
+				name:"queueClosed"
+			};
+			
+			if(!callback) {
+				pushCallback(message, simulatedError);
+			}
+			else {
+				//A specific callback. This is used by pushMany
+				callback(message, simulatedError);
+			}
+			return;
+		}
+		
+		
 		var messageStorage = {qname:queue.queueName, message:JSON.stringify(message), delay:when};
 		rsmq.sendMessage(messageStorage, function(err, resp) {
 			messageStorage = null;
@@ -308,6 +339,14 @@ exports.queue = function() {
 		}
 	};
 	
+	queue.markFailed = function(message) {
+		messagesBeingProcessed--;
+		
+		if(isQueueInListeningMode && !queue.isStarted && messagesBeingProcessed === 0) {
+			close();
+		}
+	};
+	
 	//Function called after message is deleted from the queue
 	function deleteCallback(message, err, resp) {
 		if (resp || !err) {
@@ -340,6 +379,11 @@ exports.queue = function() {
 			rsmq.deleteMessage(deleteOptions, function(err, resp) {
 				deleteOptions = null;
 				deleteCallback(message, err, resp);
+				messagesBeingProcessed--;
+				
+				if(isQueueInListeningMode && !queue.isStarted && messagesBeingProcessed === 0) {
+					close();
+				}
 			});
 		}
 	};
@@ -391,6 +435,16 @@ exports.queue = function() {
 				if(queue.isStarted) {
 					timerHandle = setTimeout(poller, queue.pollingInterval);
 				}
+				else {
+					if(messagesBeingProcessed === 0) {
+						close();
+					}
+				}
+			}
+		}
+		else {
+			if(messagesBeingProcessed === 0) {
+				close();
 			}
 		}
 	}
@@ -404,17 +458,24 @@ exports.queue = function() {
 				return;
 			}
 			
-			//Raise an error
-			var queueError = errorCodes.getError("QUEUE_ERROR_RECEIVING_MESSAGE");
-			queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
-			queueError.queueError = err;
-			queue.onError(queueError);
-			queueError = null;
+			if(queue.isStarted) {
+				//Raise an error
+				var queueError = errorCodes.getError("QUEUE_ERROR_RECEIVING_MESSAGE");
+				queueError.errorMessage = util.format(queueError.errorMessage, queue.queueName, err);
+				queueError.queueError = err;
+				queue.onError(queueError);
+				queueError = null;
+			}
 			
 			//We still continue on error
 			if(queue.isStarted) {
 				//Try again after polling interval
 				timerHandle = setTimeout(poller, queue.pollingInterval);
+			}
+			else {
+				if(messagesBeingProcessed === 0) {
+					close();
+				}
 			}
 		}
 		else
@@ -431,6 +492,9 @@ exports.queue = function() {
 				ourMsgsType.payload = msg.payload;
 				ourMsgsType.jobType = msg.jobType;
 				ourMsgsType.dequeueCount = resp.rc;
+				
+				messagesBeingProcessed++;
+				
 				queue.onMessageReceived(ourMsgsType);
 				
 				//Just in case for GC
@@ -444,12 +508,22 @@ exports.queue = function() {
 				if(queue.isStarted) {
 					timerHandle = setTimeout(poller, 0);
 				}
+				else {
+					if(messagesBeingProcessed === 0) {
+						close();
+					}
+				}
 			}
 			else
 			{
 				//Otherwise revert to polling interval
 				if(queue.isStarted) {
 					timerHandle = setTimeout(poller, queue.pollingInterval);
+				}
+				else {
+					if(messagesBeingProcessed === 0) {
+						close();
+					}
 				}
 			}
 		}
@@ -467,6 +541,8 @@ exports.queue = function() {
 			if(queue.queueInitialized) {
 				//Mark that we are now listening
 				queue.isStarted = true;
+				//Mark that the queue is in listening mode
+				isQueueInListeningMode = true;
 				//Start the polling
 				poller();
 				//Call the started callback
@@ -487,6 +563,9 @@ exports.queue = function() {
 				clearTimeout(timerHandle);
 				//Unset the handle
 				timerHandle = undefined;
+			}
+			if(messagesBeingProcessed === 0) {
+				close();
 			}
 			//Call the stopped callback
 			queue.stoppedFunction(isRemoved);
