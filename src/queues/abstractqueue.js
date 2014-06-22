@@ -210,9 +210,17 @@ function AbstractQueue(name) {
 	};
 	
 	//Close underlying connection for the queue
-	this.terminate = function () {
+	this.terminate = function (isExternalTermination) {
 		queue.log("terminate() not implemented");
-		queue.closedFunction();
+		if(isExternalTermination) {
+			if(queue.isStarted) {
+				queue.stop();
+			}
+			queue.closedFunction();
+		}
+		else {
+			queue.closedFunction();
+		}
 	};
 	
 	this.deleteQueue = function() {

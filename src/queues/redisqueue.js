@@ -161,11 +161,23 @@ exports.queue = function() {
 	
 	var isClosed = false;
 	
-	queue.terminate = function() {
+	queue.terminate = function(isExternalTermination) {
 		if(!isClosed) {
-			rsmq.redis.quit();
-			isClosed = true;
-			queue.closedFunction();
+			if(isExternalTermination) {
+				if(queue.isStarted) {
+					queue.stop();
+				}
+				else {
+					rsmq.redis.quit();
+					isClosed = true;
+					queue.closedFunction();
+				}
+			}
+			else {
+				rsmq.redis.quit();
+				isClosed = true;
+				queue.closedFunction();
+			}
 		}
 	};
 	

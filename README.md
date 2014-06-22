@@ -242,8 +242,9 @@ The broker provides the following functions:
 2. `pushMany(messages)` - This pushes an array of messages to a single queue. All the messages in the array must have one `jobType` and that `jobType` must correspond to a single queue. This method can only be invoked once. The invoker must listen for the `queue-pushmany-completed` event before pushing the next set of messages.
 3. `schedule(message, when)` - This pushes a message to one or more queues, but messages will only be processed after the delay (in seconds) specified by `when`. The delay is counted from the present time.
 4. `connect(doNotCreateMissingQueue)` - This is the first function that should be called by a script using the broker. This call will result in a `queue-ready` event once a particular queue is ready. The optional parameter `doNotCreateMissingQueue` if set to true will result in avoiding the creation of any queue that does not already exist (normally queues are created if they don't exist). A result object is passed as an argument for the `queue-ready` event. The object contains worker and queue as properties. A script using the broker can then ask the queue to start listening for messages by calling `result.queue.start()`. If called with `doNotCreateMissingQueue` set to true, when a queue is not found, the `queue-deleted-queue` event will be emitted for that queue (instead of `queue-ready`).
-5. `stop()` - This stops the message processing cycle for all queues.
+5. `stop()` - This stops the message processing cycle for all queues. This also closes the underlying connection (currently implemented for only Redis queue)
 6. `hasQueue(jobType)` - This function synchronously returns true if there exists a queue registered with the broker for the specified jobType 
+7. `close()` - This closes the underlying connection of the queue and also stops it if it was in listening mode (only implemented for Redis queue). When a queue is in listening mode, `close()` and `stop()` can be used interchangably. However, `close()` is the function that should be called for scenarios where a script using this module is only pushing to the queue and the queue is not in listening mode.
 
 Queue Interface
 ---------------
@@ -255,11 +256,12 @@ Since the broker usually pushes messages to a queue, the queue interface is very
 Broker Events
 -------------
 A script using the broker can register for certain events. The following is a list of events raised by the broker:
-* `queue-ready` - This event is raised when the queue is ready to start processing messages. The `worker` and `queue` are passed in this event (in that order), thus the script using the broker can call `queue.start()` to start listening for messages.
+* `queue-ready` - This event is raised when the queue is ready to start processing messages. The `worker` and `queue` are passed in this event (in that order), thus the script using the broker can call `queue.start()` to start listening for messages (and thereby put the queue in listening mode).
 * `queue-started` - This event is raised when the queue has started listening for messages. The `worker` and `queue` are passed as arguments (in that order).
 * `queue-stopped` - This event is raised when a queue has stopped listening for messages. The `worker` and the `queue` are passed as arguments (in that order).
 * `queue-error` - This event is raised when there is an error as a result of a queue operation
 * `queue-success` - This event is raised when a message was successfully queued. Please note that if a `jobType` has multiple queues registered, then this event will be raised multiple times (one time per queue)
+* `queue-closed` - This event is raised when the underlying connection to the queue is closed
 * `work-completed` - This event is raised when a consumer signals that it is done processing the message
 * `work-error` - This event is raised when a consumer signals that it failed in processing the message
 * `queue-deleted` - This event is raised after a message is deleted

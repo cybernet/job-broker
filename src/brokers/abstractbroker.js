@@ -624,7 +624,7 @@ function AbstractBroker(name) {
 				if(queues) {
 					for(var i=0; i<queues.length; i++) {
 						var queueModule = queues[i];
-						queueModule.terminate();
+						queueModule.terminate(true);
 					}
 				}
 			}
