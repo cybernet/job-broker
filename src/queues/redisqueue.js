@@ -596,6 +596,7 @@ exports.queue = function() {
 		}
 		else {
 			queue.queueDeleteCallback();
+			queue.terminate();
 		}
 	}
 	
