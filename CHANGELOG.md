@@ -34,3 +34,7 @@ v0.1.3, v0.1.4, v0.1.5
 v0.1.6
 ------
 - Close Redis connections on queue stop (for Redis Queue)
+
+v0.1.7
+------
+- Maintainence Releases (close Redis connection on queue delete) 
