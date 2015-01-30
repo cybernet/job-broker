@@ -1,0 +1,528 @@
+Using worker: worker-linux-bb3654bb-2.bb.travis-ci.org:travis-linux-10
+system_info
+Build system information
+Build language: node_js
+Build image provisioning date and time
+Fri Dec 26 15:36:46 UTC 2014
+lsb_release -a
+Distributor ID:	Ubuntu
+Description:	Ubuntu 12.04 LTS
+Release:	12.04
+Codename:	precise
+Cookbooks Version
+984d1aa https://github.com/travis-ci/travis-cookbooks/tree/984d1aa
+GCC version
+gcc (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3
+Copyright (C) 2011 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+LLVM version
+clang version 3.4 (tags/RELEASE_34/final)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+Pre-installed Ruby versions
+ruby-1.9.3-p551
+Pre-installed Node.js versions
+v0.10
+v0.10.18
+v0.10.33
+v0.10.35
+v0.11.14
+v0.6.21
+v0.8.27
+Pre-installed Go versions
+go1.4
+Redis version
+redis-server 2.8.18
+riak version
+1.4.12
+MongoDB version
+MongoDB 2.4.12
+CouchDB version
+couchdb 1.6.1
+Neo4j version
+1.9.4
+Cassandra version
+2.0.9
+RabbitMQ Version
+3.4.2
+ElasticSearch version
+1.4.0
+Installed Sphinx versions
+2.0.10
+2.1.9
+2.2.4
+Default Sphinx version
+2.1.9
+Installed Firefox version
+firefox 31.0esr
+PhantomJS version
+1.9.8
+ant -version
+Apache Ant(TM) version 1.8.2 compiled on December 3 2011
+mvn -version
+Apache Maven 3.2.3 (33f8c3e1027c3ddde99d3cdebad2656a31e8fdf4; 2014-08-11T20:58:10+00:00)
+Maven home: /usr/local/maven
+Java version: 1.7.0_72, vendor: Oracle Corporation
+Java home: /usr/lib/jvm/java-7-oracle/jre
+Default locale: en, platform encoding: UTF-8
+OS name: "linux", version: "2.6.32-042stab090.5", arch: "amd64", family: "unix"
+git.checkout
+0.14s$ git clone --depth=50 --branch=master git://github.com/Sently/job-broker.git Sently/job-broker
+Cloning into 'Sently/job-broker'...
+remote: Counting objects: 351, done.
+remote: Compressing objects: 100% (172/172), done.
+remote: Total 351 (delta 221), reused 289 (delta 172)
+Receiving objects: 100% (351/351), 99.81 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (221/221), done.
+Checking connectivity... done.
+$ cd Sently/job-broker
+$ git checkout -qf 496786ab4ea0d6d089831c76cfe4359277526cdb
+services
+0.03s$ sudo service redis-server start
+redis-server start/running, process 1865
+Setting environment variables from .travis.yml
+$ export AWS_CONFIG=[secure]
+0.76s$ nvm install 0.10.28
+######################################################################## 100.0%
+Now using node v0.10.28
+$ node --version
+v0.10.28
+$ npm --version
+1.4.9
+$ nvm --version
+0.20.0
+install.1
+1.96s$ npm install -g grunt-cli
+npm http GET https://registry.npmjs.org/grunt-cli
+npm http 200 https://registry.npmjs.org/grunt-cli
+npm http GET https://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz
+npm http 200 https://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz
+npm http GET https://registry.npmjs.org/resolve
+npm http GET https://registry.npmjs.org/findup-sync
+npm http GET https://registry.npmjs.org/nopt
+npm http 200 https://registry.npmjs.org/findup-sync
+npm http GET https://registry.npmjs.org/findup-sync/-/findup-sync-0.1.3.tgz
+npm http 200 https://registry.npmjs.org/resolve
+npm http GET https://registry.npmjs.org/resolve/-/resolve-0.3.1.tgz
+npm http 200 https://registry.npmjs.org/findup-sync/-/findup-sync-0.1.3.tgz
+npm http 200 https://registry.npmjs.org/resolve/-/resolve-0.3.1.tgz
+npm http 200 https://registry.npmjs.org/nopt
+npm http GET https://registry.npmjs.org/nopt/-/nopt-1.0.10.tgz
+npm http 200 https://registry.npmjs.org/nopt/-/nopt-1.0.10.tgz
+npm http GET https://registry.npmjs.org/abbrev
+npm http GET https://registry.npmjs.org/glob
+npm http GET https://registry.npmjs.org/lodash
+npm http 200 https://registry.npmjs.org/lodash
+npm http GET https://registry.npmjs.org/lodash/-/lodash-2.4.1.tgz
+npm http 200 https://registry.npmjs.org/abbrev
+npm http GET https://registry.npmjs.org/abbrev/-/abbrev-1.0.5.tgz
+npm http 200 https://registry.npmjs.org/lodash/-/lodash-2.4.1.tgz
+npm http 200 https://registry.npmjs.org/glob
+npm http 200 https://registry.npmjs.org/abbrev/-/abbrev-1.0.5.tgz
+npm http GET https://registry.npmjs.org/glob/-/glob-3.2.11.tgz
+npm http 200 https://registry.npmjs.org/glob/-/glob-3.2.11.tgz
+npm http GET https://registry.npmjs.org/inherits
+npm http GET https://registry.npmjs.org/minimatch
+npm http 200 https://registry.npmjs.org/inherits
+npm http 200 https://registry.npmjs.org/minimatch
+npm http GET https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz
+npm http GET https://registry.npmjs.org/minimatch/-/minimatch-0.3.0.tgz
+npm http 200 https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz
+npm http 200 https://registry.npmjs.org/minimatch/-/minimatch-0.3.0.tgz
+npm http GET https://registry.npmjs.org/lru-cache
+npm http GET https://registry.npmjs.org/sigmund
+npm http 200 https://registry.npmjs.org/sigmund
+npm http GET https://registry.npmjs.org/sigmund/-/sigmund-1.0.0.tgz
+npm http 200 https://registry.npmjs.org/lru-cache
+npm http GET https://registry.npmjs.org/lru-cache/-/lru-cache-2.5.0.tgz
+npm http 200 https://registry.npmjs.org/sigmund/-/sigmund-1.0.0.tgz
+npm http 200 https://registry.npmjs.org/lru-cache/-/lru-cache-2.5.0.tgz
+/home/travis/.nvm/v0.10.28/bin/grunt -> /home/travis/.nvm/v0.10.28/lib/node_modules/grunt-cli/bin/grunt
+grunt-cli@0.1.13 /home/travis/.nvm/v0.10.28/lib/node_modules/grunt-cli
+├── resolve@0.3.1
+├── nopt@1.0.10 (abbrev@1.0.5)
+└── findup-sync@0.1.3 (lodash@2.4.1, glob@3.2.11)
+install.2
+14.79s$ npm install
+npm http GET https://registry.npmjs.org/aws-sdk
+npm http GET https://registry.npmjs.org/grunt
+npm http GET https://registry.npmjs.org/node-uuid
+npm http GET https://registry.npmjs.org/grunt-jasmine-node
+npm http GET https://registry.npmjs.org/grunt-contrib-jshint
+npm http GET https://registry.npmjs.org/nconf
+npm http GET https://registry.npmjs.org/rsmq
+npm http 200 https://registry.npmjs.org/aws-sdk
+npm http 200 https://registry.npmjs.org/grunt-contrib-jshint
+npm http 200 https://registry.npmjs.org/node-uuid
+npm http GET https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.0.31.tgz
+npm http 200 https://registry.npmjs.org/rsmq
+npm http GET https://registry.npmjs.org/grunt-contrib-jshint/-/grunt-contrib-jshint-0.7.2.tgz
+npm http GET https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.2.tgz
+npm http GET https://registry.npmjs.org/rsmq/-/rsmq-0.3.9.tgz
+npm http 200 https://registry.npmjs.org/nconf
+npm http 200 https://registry.npmjs.org/grunt
+npm http 200 https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.2.tgz
+npm http 200 https://registry.npmjs.org/grunt-contrib-jshint/-/grunt-contrib-jshint-0.7.2.tgz
+npm http 200 https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.0.31.tgz
+npm http GET https://registry.npmjs.org/nconf/-/nconf-0.6.9.tgz
+npm http GET https://registry.npmjs.org/grunt/-/grunt-0.4.5.tgz
+npm http 200 https://registry.npmjs.org/nconf/-/nconf-0.6.9.tgz
+npm http 200 https://registry.npmjs.org/grunt/-/grunt-0.4.5.tgz
+npm http 200 https://registry.npmjs.org/grunt-jasmine-node
+npm http GET https://registry.npmjs.org/grunt-jasmine-node/-/grunt-jasmine-node-0.1.0.tgz
+npm http 200 https://registry.npmjs.org/grunt-jasmine-node/-/grunt-jasmine-node-0.1.0.tgz
+npm http 200 https://registry.npmjs.org/rsmq/-/rsmq-0.3.9.tgz
+npm http GET https://registry.npmjs.org/jasmine-node
+npm http 200 https://registry.npmjs.org/jasmine-node
+npm http GET https://registry.npmjs.org/jasmine-node/-/jasmine-node-1.14.5.tgz
+npm http 200 https://registry.npmjs.org/jasmine-node/-/jasmine-node-1.14.5.tgz
+npm http GET https://registry.npmjs.org/jshint
+npm http GET https://registry.npmjs.org/redis
+npm http GET https://registry.npmjs.org/hiredis
+npm http GET https://registry.npmjs.org/lodash/-/lodash-3.0.0.tgz
+npm http 200 https://registry.npmjs.org/lodash/-/lodash-3.0.0.tgz
+npm http 200 https://registry.npmjs.org/hiredis
+npm http GET https://registry.npmjs.org/dateformat
+npm http GET https://registry.npmjs.org/eventemitter2
+npm http GET https://registry.npmjs.org/hooker
+npm http GET https://registry.npmjs.org/iconv-lite
+npm http GET https://registry.npmjs.org/rimraf
+npm http GET https://registry.npmjs.org/underscore.string
+npm http GET https://registry.npmjs.org/which
+npm http GET https://registry.npmjs.org/js-yaml
+npm http GET https://registry.npmjs.org/exit
+npm http GET https://registry.npmjs.org/getobject
+npm http GET https://registry.npmjs.org/grunt-legacy-util
+npm http GET https://registry.npmjs.org/grunt-legacy-log
+npm http GET https://registry.npmjs.org/async
+npm http GET https://registry.npmjs.org/coffee-script
+npm http GET https://registry.npmjs.org/colors
+npm http GET https://registry.npmjs.org/hiredis/-/hiredis-0.1.17.tgz
+npm http 200 https://registry.npmjs.org/hooker
+npm http 200 https://registry.npmjs.org/jshint
+npm http GET https://registry.npmjs.org/glob/-/glob-3.1.21.tgz
+npm http GET https://registry.npmjs.org/minimatch/-/minimatch-0.2.14.tgz
+npm http GET https://registry.npmjs.org/lodash/-/lodash-0.9.2.tgz
+npm http 200 https://registry.npmjs.org/dateformat
+npm http 200 https://registry.npmjs.org/redis
+npm http 200 https://registry.npmjs.org/iconv-lite
+npm http 200 https://registry.npmjs.org/hiredis/-/hiredis-0.1.17.tgz
+npm http 200 https://registry.npmjs.org/glob/-/glob-3.1.21.tgz
+npm http 200 https://registry.npmjs.org/minimatch/-/minimatch-0.2.14.tgz
+npm http 200 https://registry.npmjs.org/lodash/-/lodash-0.9.2.tgz
+npm http 200 https://registry.npmjs.org/which
+npm http GET https://registry.npmjs.org/hooker/-/hooker-0.2.3.tgz
+npm http 200 https://registry.npmjs.org/rimraf
+npm http GET https://registry.npmjs.org/jshint/-/jshint-2.3.0.tgz
+npm http GET https://registry.npmjs.org/dateformat/-/dateformat-1.0.2-1.2.3.tgz
+npm http 200 https://registry.npmjs.org/eventemitter2
+npm http 200 https://registry.npmjs.org/exit
+npm http GET https://registry.npmjs.org/redis/-/redis-0.12.1.tgz
+npm http GET https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.2.11.tgz
+npm http 200 https://registry.npmjs.org/getobject
+npm http 200 https://registry.npmjs.org/grunt-legacy-util
+npm http 200 https://registry.npmjs.org/dateformat/-/dateformat-1.0.2-1.2.3.tgz
+npm http GET https://registry.npmjs.org/which/-/which-1.0.8.tgz
+npm http 200 https://registry.npmjs.org/grunt-legacy-log
+npm http GET https://registry.npmjs.org/rimraf/-/rimraf-2.2.8.tgz
+npm http 200 https://registry.npmjs.org/underscore.string
+npm http GET https://registry.npmjs.org/eventemitter2/-/eventemitter2-0.4.14.tgz
+npm http 200 https://registry.npmjs.org/redis/-/redis-0.12.1.tgz
+npm http GET https://registry.npmjs.org/exit/-/exit-0.1.2.tgz
+npm http 200 https://registry.npmjs.org/colors
+npm http 200 https://registry.npmjs.org/js-yaml
+npm http 200 https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.2.11.tgz
+npm http GET https://registry.npmjs.org/getobject/-/getobject-0.1.0.tgz
+npm http 200 https://registry.npmjs.org/hooker/-/hooker-0.2.3.tgz
+npm http 200 https://registry.npmjs.org/jshint/-/jshint-2.3.0.tgz
+npm http GET https://registry.npmjs.org/grunt-legacy-util/-/grunt-legacy-util-0.2.0.tgz
+npm http GET https://registry.npmjs.org/grunt-legacy-log/-/grunt-legacy-log-0.1.1.tgz
+npm http 200 https://registry.npmjs.org/which/-/which-1.0.8.tgz
+npm http GET https://registry.npmjs.org/underscore.string/-/underscore.string-2.2.1.tgz
+npm http 200 https://registry.npmjs.org/coffee-script
+npm http 200 https://registry.npmjs.org/rimraf/-/rimraf-2.2.8.tgz
+npm http GET https://registry.npmjs.org/colors/-/colors-0.6.2.tgz
+npm http GET https://registry.npmjs.org/js-yaml/-/js-yaml-2.0.5.tgz
+npm http 200 https://registry.npmjs.org/eventemitter2/-/eventemitter2-0.4.14.tgz
+npm http 200 https://registry.npmjs.org/exit/-/exit-0.1.2.tgz
+npm http 200 https://registry.npmjs.org/getobject/-/getobject-0.1.0.tgz
+npm http 200 https://registry.npmjs.org/grunt-legacy-util/-/grunt-legacy-util-0.2.0.tgz
+npm http 200 https://registry.npmjs.org/grunt-legacy-log/-/grunt-legacy-log-0.1.1.tgz
+npm http 200 https://registry.npmjs.org/underscore.string/-/underscore.string-2.2.1.tgz
+npm http GET https://registry.npmjs.org/coffee-script/-/coffee-script-1.3.3.tgz
+npm http 200 https://registry.npmjs.org/colors/-/colors-0.6.2.tgz
+npm http 200 https://registry.npmjs.org/js-yaml/-/js-yaml-2.0.5.tgz
+npm http 200 https://registry.npmjs.org/coffee-script/-/coffee-script-1.3.3.tgz
+npm http 200 https://registry.npmjs.org/async
+npm http GET https://registry.npmjs.org/async/-/async-0.1.22.tgz
+npm http 200 https://registry.npmjs.org/async/-/async-0.1.22.tgz
+npm http GET https://registry.npmjs.org/optimist
+npm http GET https://registry.npmjs.org/ini
+npm http GET https://registry.npmjs.org/async/-/async-0.2.9.tgz
+npm http 200 https://registry.npmjs.org/ini
+npm http 200 https://registry.npmjs.org/optimist
+npm http 200 https://registry.npmjs.org/async/-/async-0.2.9.tgz
+npm http GET https://registry.npmjs.org/optimist/-/optimist-0.6.0.tgz
+npm http GET https://registry.npmjs.org/ini/-/ini-1.3.2.tgz
+npm http 200 https://registry.npmjs.org/optimist/-/optimist-0.6.0.tgz
+npm http 200 https://registry.npmjs.org/ini/-/ini-1.3.2.tgz
+npm http GET https://registry.npmjs.org/jasmine-reporters
+npm http GET https://registry.npmjs.org/requirejs
+npm http GET https://registry.npmjs.org/jasmine-growl-reporter
+npm http GET https://registry.npmjs.org/walkdir
+npm http GET https://registry.npmjs.org/underscore
+npm http GET https://registry.npmjs.org/gaze
+npm http GET https://registry.npmjs.org/mkdirp
+npm http GET https://registry.npmjs.org/coffee-script/-/coffee-script-1.9.0.tgz
+npm http 200 https://registry.npmjs.org/coffee-script/-/coffee-script-1.9.0.tgz
+npm http 200 https://registry.npmjs.org/requirejs
+npm http GET https://registry.npmjs.org/requirejs/-/requirejs-2.1.15.tgz
+npm http 200 https://registry.npmjs.org/gaze
+npm http 200 https://registry.npmjs.org/jasmine-reporters
+npm http 200 https://registry.npmjs.org/underscore
+npm http 200 https://registry.npmjs.org/mkdirp
+npm http 200 https://registry.npmjs.org/requirejs/-/requirejs-2.1.15.tgz
+npm http 200 https://registry.npmjs.org/jasmine-growl-reporter
+npm http GET https://registry.npmjs.org/gaze/-/gaze-0.3.4.tgz
+npm http 200 https://registry.npmjs.org/walkdir
+npm http GET https://registry.npmjs.org/jasmine-reporters/-/jasmine-reporters-1.0.1.tgz
+npm http GET https://registry.npmjs.org/underscore/-/underscore-1.7.0.tgz
+npm http GET https://registry.npmjs.org/mkdirp/-/mkdirp-0.3.5.tgz
+npm http GET https://registry.npmjs.org/jasmine-growl-reporter/-/jasmine-growl-reporter-0.0.3.tgz
+npm http GET https://registry.npmjs.org/walkdir/-/walkdir-0.0.7.tgz
+npm http 200 https://registry.npmjs.org/gaze/-/gaze-0.3.4.tgz
+npm http 200 https://registry.npmjs.org/mkdirp/-/mkdirp-0.3.5.tgz
+npm http 200 https://registry.npmjs.org/jasmine-reporters/-/jasmine-reporters-1.0.1.tgz
+npm http 200 https://registry.npmjs.org/walkdir/-/walkdir-0.0.7.tgz
+npm http 200 https://registry.npmjs.org/jasmine-growl-reporter/-/jasmine-growl-reporter-0.0.3.tgz
+npm http 200 https://registry.npmjs.org/underscore/-/underscore-1.7.0.tgz
+npm http GET https://registry.npmjs.org/wordwrap
+npm http GET https://registry.npmjs.org/minimist
+npm http 200 https://registry.npmjs.org/wordwrap
+npm http 200 https://registry.npmjs.org/minimist
+npm http GET https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.2.tgz
+npm http GET https://registry.npmjs.org/minimist/-/minimist-0.0.10.tgz
+npm http 200 https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.2.tgz
+npm http 200 https://registry.npmjs.org/minimist/-/minimist-0.0.10.tgz
+npm http GET https://registry.npmjs.org/underscore.string/-/underscore.string-2.3.3.tgz
+npm http 200 https://registry.npmjs.org/underscore.string/-/underscore.string-2.3.3.tgz
+npm http GET https://registry.npmjs.org/graceful-fs
+npm http GET https://registry.npmjs.org/inherits/-/inherits-1.0.0.tgz
+npm http 200 https://registry.npmjs.org/graceful-fs
+npm http GET https://registry.npmjs.org/graceful-fs/-/graceful-fs-1.2.3.tgz
+npm http 200 https://registry.npmjs.org/graceful-fs/-/graceful-fs-1.2.3.tgz
+npm http 200 https://registry.npmjs.org/inherits/-/inherits-1.0.0.tgz
+npm http GET https://registry.npmjs.org/argparse
+npm http GET https://registry.npmjs.org/esprima
+npm http 200 https://registry.npmjs.org/argparse
+npm http 200 https://registry.npmjs.org/esprima
+npm http GET https://registry.npmjs.org/argparse/-/argparse-0.1.16.tgz
+npm http GET https://registry.npmjs.org/esprima/-/esprima-1.0.4.tgz
+npm http 200 https://registry.npmjs.org/esprima/-/esprima-1.0.4.tgz
+npm http 200 https://registry.npmjs.org/argparse/-/argparse-0.1.16.tgz
+npm http GET https://registry.npmjs.org/shelljs
+npm http GET https://registry.npmjs.org/cli
+npm http GET https://registry.npmjs.org/console-browserify
+npm http GET https://registry.npmjs.org/underscore/-/underscore-1.4.4.tgz
+npm http GET https://registry.npmjs.org/minimatch/-/minimatch-0.4.0.tgz
+npm http 200 https://registry.npmjs.org/console-browserify
+npm http 200 https://registry.npmjs.org/cli
+npm http GET https://registry.npmjs.org/console-browserify/-/console-browserify-0.1.6.tgz
+npm http GET https://registry.npmjs.org/cli/-/cli-0.4.5.tgz
+npm http 200 https://registry.npmjs.org/underscore/-/underscore-1.4.4.tgz
+npm http 200 https://registry.npmjs.org/minimatch/-/minimatch-0.4.0.tgz
+npm http 200 https://registry.npmjs.org/console-browserify/-/console-browserify-0.1.6.tgz
+npm http 200 https://registry.npmjs.org/cli/-/cli-0.4.5.tgz
+npm http 200 https://registry.npmjs.org/shelljs
+npm http GET https://registry.npmjs.org/shelljs/-/shelljs-0.1.4.tgz
+npm http 200 https://registry.npmjs.org/shelljs/-/shelljs-0.1.4.tgz
+npm http GET https://registry.npmjs.org/xml2js
+npm http GET https://registry.npmjs.org/xmlbuilder
+npm http 200 https://registry.npmjs.org/xml2js
+npm http GET https://registry.npmjs.org/xml2js/-/xml2js-0.2.6.tgz
+npm http 200 https://registry.npmjs.org/xmlbuilder
+npm http GET https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-0.4.2.tgz
+npm http 200 https://registry.npmjs.org/xml2js/-/xml2js-0.2.6.tgz
+npm http 200 https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-0.4.2.tgz
+npm http GET https://registry.npmjs.org/glob/-/glob-4.3.5.tgz
+npm http 200 https://registry.npmjs.org/glob/-/glob-4.3.5.tgz
+npm http GET https://registry.npmjs.org/sax
+npm http 200 https://registry.npmjs.org/sax
+npm http GET https://registry.npmjs.org/sax/-/sax-0.4.2.tgz
+npm http GET https://registry.npmjs.org/underscore.string/-/underscore.string-2.4.0.tgz
+npm http 200 https://registry.npmjs.org/sax/-/sax-0.4.2.tgz
+npm http GET https://registry.npmjs.org/inflight
+npm http GET https://registry.npmjs.org/once
+npm http GET https://registry.npmjs.org/minimatch/-/minimatch-2.0.1.tgz
+npm http 200 https://registry.npmjs.org/underscore.string/-/underscore.string-2.4.0.tgz
+npm http 200 https://registry.npmjs.org/inflight
+npm http 200 https://registry.npmjs.org/once
+npm http 200 https://registry.npmjs.org/minimatch/-/minimatch-2.0.1.tgz
+npm http GET https://registry.npmjs.org/inflight/-/inflight-1.0.4.tgz
+npm http GET https://registry.npmjs.org/once/-/once-1.3.1.tgz
+npm http 200 https://registry.npmjs.org/once/-/once-1.3.1.tgz
+npm http 200 https://registry.npmjs.org/inflight/-/inflight-1.0.4.tgz
+npm http GET https://registry.npmjs.org/bindings
+npm http GET https://registry.npmjs.org/nan
+npm http 200 https://registry.npmjs.org/bindings
+npm http GET https://registry.npmjs.org/bindings/-/bindings-1.2.1.tgz
+npm http 200 https://registry.npmjs.org/nan
+npm http GET https://registry.npmjs.org/nan/-/nan-1.1.2.tgz
+npm http 200 https://registry.npmjs.org/bindings/-/bindings-1.2.1.tgz
+npm http 200 https://registry.npmjs.org/nan/-/nan-1.1.2.tgz
+npm http GET https://registry.npmjs.org/wrappy
+npm http 200 https://registry.npmjs.org/wrappy
+npm http GET https://registry.npmjs.org/wrappy/-/wrappy-1.0.1.tgz
+npm http 200 https://registry.npmjs.org/wrappy/-/wrappy-1.0.1.tgz
+npm http GET https://registry.npmjs.org/growl
+npm http GET https://registry.npmjs.org/brace-expansion
+npm http 200 https://registry.npmjs.org/brace-expansion
+npm http 200 https://registry.npmjs.org/growl
+npm http GET https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.0.tgz
+npm http GET https://registry.npmjs.org/growl/-/growl-1.7.0.tgz
+npm http 200 https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.0.tgz
+npm http 200 https://registry.npmjs.org/growl/-/growl-1.7.0.tgz
+npm http GET https://registry.npmjs.org/fileset
+npm http 200 https://registry.npmjs.org/fileset
+npm http GET https://registry.npmjs.org/fileset/-/fileset-0.1.5.tgz
+> hiredis@0.1.17 install /home/travis/build/Sently/job-broker/node_modules/rsmq/node_modules/hiredis
+> node-gyp rebuild
+gyp http GET http://nodejs.org/dist/v0.10.28/node-v0.10.28.tar.gz
+gyp http 200 http://nodejs.org/dist/v0.10.28/node-v0.10.28.tar.gz
+gyp http GET http://nodejs.org/dist/v0.10.28/SHASUMS.txt
+gyp http GET http://nodejs.org/dist/v0.10.28/SHASUMS.txt
+gyp http 200 http://nodejs.org/dist/v0.10.28/SHASUMS.txt
+gyp http 200 http://nodejs.org/dist/v0.10.28/SHASUMS.txt
+make: Entering directory `/home/travis/build/Sently/job-broker/node_modules/rsmq/node_modules/hiredis/build'
+  CC(target) Release/obj.target/hiredis/deps/hiredis/hiredis.o
+  CC(target) Release/obj.target/hiredis/deps/hiredis/net.o
+  CC(target) Release/obj.target/hiredis/deps/hiredis/sds.o
+  CC(target) Release/obj.target/hiredis/deps/hiredis/async.o
+  AR(target) Release/obj.target/deps/hiredis.a
+  COPY Release/hiredis.a
+  CXX(target) Release/obj.target/hiredis/src/hiredis.o
+  CXX(target) Release/obj.target/hiredis/src/reader.o
+  SOLINK_MODULE(target) Release/obj.target/hiredis.node
+  SOLINK_MODULE(target) Release/obj.target/hiredis.node: Finished
+  COPY Release/hiredis.node
+make: Leaving directory `/home/travis/build/Sently/job-broker/node_modules/rsmq/node_modules/hiredis/build'
+npm http 200 https://registry.npmjs.org/fileset/-/fileset-0.1.5.tgz
+npm http GET https://registry.npmjs.org/balanced-match
+npm http GET https://registry.npmjs.org/concat-map
+npm http 200 https://registry.npmjs.org/balanced-match
+npm http 200 https://registry.npmjs.org/concat-map
+npm http GET https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz
+npm http GET https://registry.npmjs.org/balanced-match/-/balanced-match-0.2.0.tgz
+npm http 200 https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz
+npm http 200 https://registry.npmjs.org/balanced-match/-/balanced-match-0.2.0.tgz
+npm http GET https://registry.npmjs.org/glob
+npm http 304 https://registry.npmjs.org/glob
+node-uuid@1.4.2 node_modules/node-uuid
+nconf@0.6.9 node_modules/nconf
+├── ini@1.3.2
+├── async@0.2.9
+└── optimist@0.6.0 (wordwrap@0.0.2, minimist@0.0.10)
+grunt-cli@0.1.13 node_modules/grunt-cli
+├── nopt@1.0.10 (abbrev@1.0.5)
+├── resolve@0.3.1
+└── findup-sync@0.1.3 (glob@3.2.11, lodash@2.4.1)
+grunt@0.4.5 node_modules/grunt
+├── which@1.0.8
+├── dateformat@1.0.2-1.2.3
+├── eventemitter2@0.4.14
+├── getobject@0.1.0
+├── rimraf@2.2.8
+├── colors@0.6.2
+├── async@0.1.22
+├── grunt-legacy-util@0.2.0
+├── hooker@0.2.3
+├── nopt@1.0.10 (abbrev@1.0.5)
+├── exit@0.1.2
+├── minimatch@0.2.14 (sigmund@1.0.0, lru-cache@2.5.0)
+├── lodash@0.9.2
+├── glob@3.1.21 (inherits@1.0.0, graceful-fs@1.2.3)
+├── coffee-script@1.3.3
+├── underscore.string@2.2.1
+├── iconv-lite@0.2.11
+├── findup-sync@0.1.3 (glob@3.2.11, lodash@2.4.1)
+├── js-yaml@2.0.5 (argparse@0.1.16, esprima@1.0.4)
+└── grunt-legacy-log@0.1.1 (underscore.string@2.3.3, lodash@2.4.1)
+grunt-contrib-jshint@0.7.2 node_modules/grunt-contrib-jshint
+└── jshint@2.3.0 (console-browserify@0.1.6, minimatch@0.4.0, underscore@1.4.4, shelljs@0.1.4, cli@0.4.5)
+aws-sdk@2.0.31 node_modules/aws-sdk
+├── xmlbuilder@0.4.2
+└── xml2js@0.2.6 (sax@0.4.2)
+grunt-jasmine-node@0.1.0 node_modules/grunt-jasmine-node
+└── jasmine-node@1.14.5 (underscore@1.7.0, mkdirp@0.3.5, walkdir@0.0.7, jasmine-growl-reporter@0.0.3, coffee-script@1.9.0, gaze@0.3.4, requirejs@2.1.15, jasmine-reporters@1.0.1)
+rsmq@0.3.9 node_modules/rsmq
+├── redis@0.12.1
+├── lodash@3.0.0
+└── hiredis@0.1.17 (bindings@1.2.1, nan@1.1.2)
+272.05s$ npm test
+> job-broker@0.1.8 test /home/travis/build/Sently/job-broker
+> grunt
+Running "jshint:src" (jshint) task
+>> 42 files lint free.
+Running "jasmine_node" task
+Testing of the broker configuration module - 277 ms
+    checks for error when config file is empty - 11 ms
+    checks for error when config file has no nodes - 12 ms
+    checks for error when config file does not exist - 10 ms
+    checks for error when workers node contains no workers - 11 ms
+    checks for error when a worker definition has no job-type - 10 ms
+    checks for error when a worker definition has no worker - 10 ms
+    checks for error when a worker definition's worker node has no worker-module - 11 ms
+    checks for error when a worker node's worker-module does not exist - 10 ms
+    checks for error during worker module initialization - 10 ms
+    checks for error when a worker definition has no queue - 12 ms
+    checks for error when a worker definition's queue node has no queue-module - 10 ms
+    checks for error when a queue node's queue-name does not exist - 12 ms
+    checks for error when a queue node's queue-name is invalid - 10 ms
+    checks for error when a queue node's queue-module does not exist - 10 ms
+    checks for error during queue module initialization - 61 ms
+    checks that for a queue with module M and name N (M,N) occurs only once in config - 14 ms
+    checks for a the case when throttle-unit is not defined - 10 ms
+    checks for a the case when throttle-unit is invalid - 11 ms
+    checks for a the case when throttle-value is not defined - 11 ms
+    checks for a the case when throttle-value is invalid - 10 ms
+    checks for a valid configuration - 10 ms
+Testing Broker Interface with SQS - 65645 ms
+    verifies pushing 1 message into the queue - 1403 ms
+    checks for error when pushing messages with incompatible jobtypes using pushMany - 1499 ms
+    checks for error when pushing messages with invalid jobType - 1452 ms
+    verifies scheduling 1 message into the queue with a delay of 1 minute  - 61291 ms
+Testing Broker Interface with Redis Q - 63122 ms
+    verifies pushing 1 message into the queue - 3028 ms
+    checks for error when pushing messages with incompatible jobtypes using pushMany - 10 ms
+    checks for error when pushing messages with invalid jobType - 22 ms
+    verifies scheduling 1 message into the queue with a delay of 1 minute  - 60062 ms
+Testing of broker to handle dynamic configuration and queue initiation with do not create set to true (no new queue is created) - SQS - 1959 ms
+    tests loading a dynamic configuration SQS - 1365 ms
+    tests loading a dynamic configuration with non-existent queue with queue creation turned off - SQS - 594 ms
+Testing of broker to handle dynamic configuration and queue initiation with do not create set to true (no new queue is created) - Redis Q - 30 ms
+    tests loading a dynamic configuration Redis Q - 20 ms
+    tests loading a dynamic configuration with non-existent queue with queue creation turned off - Redis Q - 10 ms
+Testing of broker (larger granularity) - SQS - 2388 ms
+    tests pushMany functionality producing and consuming 5 messages with SQS - 2388 ms
+Testing of broker (larger granularity) - Redis Q - 3023 ms
+    tests pushMany functionality producing and consuming 5 messages with Redis Q - 3023 ms
+Testing of broker to handle queue delete cases - SQS - 4533 ms
+    tests if broker stops when the only queue being polled is deleted SQS - 1189 ms
+    tests if pushing to broker after queue has been deleted results in correct error SQS - 1227 ms
+    simulates push to a queue from a different server and tests if pushing directly to queue (not through broker) after queue has been deleted results in correct error SQS - 1033 ms
+    simulates pushMany to a queue from a different server and tests if pushing directly to queue (not through broker) after queue has been deleted results in correct error SQS - 1084 ms
+Testing of broker to handle queue delete cases - Redis Q - 62 ms
+    tests if broker stops when the only queue being polled is deleted Redis Q - 12 ms
+    tests if pushing to broker after queue has been deleted results in correct error Redis Q - 10 ms
+    simulates push to a queue from a different server and tests if pushing directly to queue (not through broker) after queue has been deleted results in correct error Redis Q - 10 ms
+    simulates pushMany to a queue from a different server and tests if pushing directly to queue (not through broker) after queue has been deleted results in correct error Redis Q - 30 ms
+Testing of broker throttling pushing 21 messages - then consuming @ 11/minute Redis Q - 63083 ms
+    tests pushMany functionality producing and consuming 21 messages with Redis Q - 63083 ms
+Testing of broker throttling pushing 21 messages - then consuming @ 11/minute SQS - 65286 ms
+    tests pushMany functionality producing and consuming 21 messages with SQS - 65286 ms
+Finished in 269.418 seconds
+45 tests, 83 assertions, 0 failures, 0 skipped
+Done, without errors.
+The command "npm test" exited with 0.
+Done. Your build exited with 0.
