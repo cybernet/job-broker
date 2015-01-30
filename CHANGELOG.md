@@ -38,3 +38,7 @@ v0.1.6
 v0.1.7
 ------
 - Maintainence Releases (close Redis connection on queue delete) 
+
+v0.1.8
+------
+- Ability to define an external throttling object
