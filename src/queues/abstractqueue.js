@@ -7,6 +7,8 @@ var EventEmitter = require('events').EventEmitter;
 
 //The class
 function AbstractQueue(name) {
+	var queue = this;
+	
 	this.name = name;
 	
 	//Default invisibilityTimeout is 1 minute
@@ -40,12 +42,21 @@ function AbstractQueue(name) {
 	//Max messages in interval
 	var throttleValue = 0;
 	
+	var throttler = null;
+	
 	function removeExpired() {
 		var now = new Date();
 		while(messagesTimes.length > 0 && now - messagesTimes[0] > throttleInterval) {
 			messagesTimes.splice(0, 1);
 		}
 	}
+	
+	this.setThrottler = function(throttle) {
+		throttler = throttle;
+		throttler.setThrottleValue(throttleValue);
+		throttler.setThrottleInterval(throttleInterval);
+		throttler.setResourceName(queue.queueName);
+	};
 	
 	this.setThrottle = function(throttle) {
 		var interval = throttle["throttle-unit"];
@@ -71,9 +82,14 @@ function AbstractQueue(name) {
 	//Marks that the specified number of messages have been consumed from the queue
 	this.markConsumed = function(numConsumed) {
 		if(throttleInterval) {
-			var now = new Date();
-			for(var i=0; i<numConsumed; i++) {
-				messagesTimes.push(now);
+			if(throttler) {
+				throttler.markConsumed(numConsumed);
+			}
+			else {
+				var now = new Date();
+				for(var i=0; i<numConsumed; i++) {
+					messagesTimes.push(now);
+				}
 			}
 		}
 	};
@@ -81,21 +97,24 @@ function AbstractQueue(name) {
 	//Returns the number of messages we can consume within the throttle bracket
 	this.getConsumable = function() {
 		if(throttleInterval) {
-			//Remove any expired messages
-			removeExpired();
-			
-			var capacity = throttleValue - messagesTimes.length;
-			if(capacity < 0) {
-				capacity = 0;
+			if(throttler) {
+				return throttler.getConsumable();
 			}
-			return capacity;
+			else {
+				//Remove any expired messages
+				removeExpired();
+			
+				var capacity = throttleValue - messagesTimes.length;
+				if(capacity < 0) {
+					capacity = 0;
+				}
+				return capacity;
+			}
 		}
 		else {
 			return Number.MAX_VALUE;
 		}
 	};
-	
-	var queue = this;
 	
 	EventEmitter.call(this);
 	
