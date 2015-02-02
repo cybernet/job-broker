@@ -710,26 +710,27 @@ exports.queue = function() {
 		function poller() {
 			if(queue.isStarted) {
 				//Initialize receiveOptions for the first time
-				var maxReceivable = queue.getConsumable();
-				var isThrottleSet = (maxReceivable !== Number.MAX_VALUE);
-				if(maxReceivable) {
-					if(maxReceivable > batchSize) {
-						maxReceivable = batchSize;
-					}
+				queue.getConsumable(function(err, maxReceivable) {
+					var isThrottleSet = (maxReceivable !== Number.MAX_VALUE);
+					if(!err && maxReceivable) {
+						if(maxReceivable > batchSize) {
+							maxReceivable = batchSize;
+						}
 					
-					receiveOptions = {
-						QueueUrl: queueUrl,
-						WaitTimeSeconds:queue.pollingInterval / 1000,
-						MaxNumberOfMessages: maxReceivable,
-						AttributeNames:["ApproximateReceiveCount"]
-					};
-					sqs.receiveMessage(receiveOptions, messageReceived);
-				}
-				else {
-					if(queue.isStarted) {
-						setTimeout(poller, queue.pollingInterval);
+						receiveOptions = {
+							QueueUrl: queueUrl,
+							WaitTimeSeconds:queue.pollingInterval / 1000,
+							MaxNumberOfMessages: maxReceivable,
+							AttributeNames:["ApproximateReceiveCount"]
+						};
+						sqs.receiveMessage(receiveOptions, messageReceived);
 					}
-				}
+					else {
+						if(queue.isStarted) {
+							setTimeout(poller, queue.pollingInterval);
+						}
+					}
+				});
 			}
 		}
 
@@ -785,9 +786,10 @@ exports.queue = function() {
 				//All is well
 				if (data.Messages && data.Messages.length > 0) {
 					//Mark them as consumed
-					queue.markConsumed(data.Messages.length);
-					messageBatch = data.Messages;
-					processReceivedOne();
+					queue.markConsumed(data.Messages.length, function(err) {
+						messageBatch = data.Messages;
+						processReceivedOne();
+					});
 				}
 				else {
 					if(queue.isStarted) {

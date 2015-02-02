@@ -440,20 +440,22 @@ exports.queue = function() {
 	//This function polls the queue at the specified interval
 	function poller() {
 		if(queue.isStarted) {
-			if(queue.getConsumable()) {
-				rsmq.receiveMessage(receiveOptions, messageReceived);
-			}
-			else {
-				//Otherwise revert to polling interval
-				if(queue.isStarted) {
-					timerHandle = setTimeout(poller, queue.pollingInterval);
+			queue.getConsumable(function(err, numConsumable) {
+				if(!err && numConsumable) {
+					rsmq.receiveMessage(receiveOptions, messageReceived);
 				}
 				else {
-					if(messagesBeingProcessed === 0) {
-						queue.terminate();
+					//Otherwise revert to polling interval
+					if(queue.isStarted) {
+						timerHandle = setTimeout(poller, queue.pollingInterval);
+					}
+					else {
+						if(messagesBeingProcessed === 0) {
+							queue.terminate();
+						}
 					}
 				}
-			}
+			});
 		}
 		else {
 			if(messagesBeingProcessed === 0) {
@@ -515,17 +517,17 @@ exports.queue = function() {
 				msg = null;
 				
 				//Mark one message as consumed
-				queue.markConsumed(1);
-				
-				//If we received a message, let's try again (soon)
-				if(queue.isStarted) {
-					timerHandle = setTimeout(poller, 0);
-				}
-				else {
-					if(messagesBeingProcessed === 0) {
-						queue.terminate();
+				queue.markConsumed(1, function(err) {
+					//If we received a message, let's try again (soon)
+					if(queue.isStarted) {
+						timerHandle = setTimeout(poller, 0);
 					}
-				}
+					else {
+						if(messagesBeingProcessed === 0) {
+							queue.terminate();
+						}
+					}
+				});
 			}
 			else
 			{

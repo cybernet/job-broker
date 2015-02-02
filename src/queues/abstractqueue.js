@@ -80,25 +80,26 @@ function AbstractQueue(name) {
 	};
 	
 	//Marks that the specified number of messages have been consumed from the queue
-	this.markConsumed = function(numConsumed) {
+	this.markConsumed = function(numConsumed, callback) {
 		if(throttleInterval) {
 			if(throttler) {
-				throttler.markConsumed(numConsumed);
+				throttler.markConsumed(numConsumed, callback);
 			}
 			else {
 				var now = new Date();
 				for(var i=0; i<numConsumed; i++) {
 					messagesTimes.push(now);
 				}
+				callback();
 			}
 		}
 	};
 	
 	//Returns the number of messages we can consume within the throttle bracket
-	this.getConsumable = function() {
+	this.getConsumable = function(callback) {
 		if(throttleInterval) {
 			if(throttler) {
-				return throttler.getConsumable();
+				throttler.getConsumable(callback);
 			}
 			else {
 				//Remove any expired messages
@@ -108,7 +109,7 @@ function AbstractQueue(name) {
 				if(capacity < 0) {
 					capacity = 0;
 				}
-				return capacity;
+				callback(0, capacity);
 			}
 		}
 		else {
